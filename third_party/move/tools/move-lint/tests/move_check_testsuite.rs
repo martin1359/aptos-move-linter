@@ -1,5 +1,4 @@
-// Copyright (c) The Diem Core Contributors
-// Copyright (c) The Move Contributors
+// Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 use codespan_reporting::term::{emit, termcolor::Buffer, Config};

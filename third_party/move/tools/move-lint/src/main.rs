@@ -1,3 +1,6 @@
+// Copyright © Aptos Foundation
+// SPDX-License-Identifier: Apache-2.0
+
 use clap::Parser;
 use move_lint::lint;
 use std::path::PathBuf;

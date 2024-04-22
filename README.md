@@ -8,20 +8,7 @@ A linter for the Move programming language used within the Aptos ecosystem. This
 
 * Rust toolchain ([https://rustup.rs](https://rustup.rs))
 
-**Installation via Cargo**
-
-```bash
-```
-
-It looks like you're working on a README for a Move language linter tool and need to add the command for installing it via Cargo, as well as the command to uninstall it. You may also want to include instructions on how to build it from source. Here’s how you could fill in those missing parts:
-
-### Installation via Cargo
-
-To install the Move Linter via Cargo, you can use the following command:
-
-```bash
-cargo install move-linter
-```
+Tt was how to use cargo install --git ... to install the tool. Please see https://github.com/movebit/movefmt?tab=readme-ov-file#install as an example of what I was looking for. 
 
 ### Build from Source
 
@@ -98,10 +85,3 @@ The Move Linter currently detects the following issues:
 ## Contributing
 
 This project is open source! Contributions are welcome. Please check out our contribution guidelines and code of conduct before getting started.
-
-## Uninstall
-
-To uninstall the Move Linter:
-
-```bash
-```

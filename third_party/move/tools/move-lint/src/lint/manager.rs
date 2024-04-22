@@ -1,3 +1,6 @@
+// Copyright © Aptos Foundation
+// SPDX-License-Identifier: Apache-2.0
+
 use super::{build::CompiledModel, utils::LintConfig, visitor::ExpressionAnalysisVisitor};
 use codespan::FileId;
 use codespan_reporting::diagnostic::Diagnostic;
