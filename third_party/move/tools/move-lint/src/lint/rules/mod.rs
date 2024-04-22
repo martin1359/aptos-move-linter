@@ -1,3 +1,6 @@
+// Copyright © Aptos Foundation
+// SPDX-License-Identifier: Apache-2.0
+
 pub mod bool_comparison;
 pub mod check_redundant_boolean_expressions;
 pub mod combinable_bool_conditions;

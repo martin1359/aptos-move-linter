@@ -1,3 +1,6 @@
+// Copyright © Aptos Foundation
+// SPDX-License-Identifier: Apache-2.0
+
 use anyhow::Ok;
 use codespan::{FileId, Span};
 use codespan_reporting::{

@@ -1,3 +1,6 @@
+// Copyright © Aptos Foundation
+// SPDX-License-Identifier: Apache-2.0
+
 /// Handles the management and execution of linters.
 /// It uses a 'VisitorManager' struct to manage a collection of linters, each implementing the 'ExpressionAnalysisVisitor' trait.
 pub mod manager;
