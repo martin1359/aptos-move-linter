@@ -8,7 +8,7 @@ A linter for the Move programming language used within the Aptos ecosystem. This
 
 * Rust toolchain ([https://rustup.rs](https://rustup.rs))
 
-Tt was how to use cargo install --git ... to install the tool. Please see https://github.com/movebit/movefmt?tab=readme-ov-file#install as an example of what I was looking for. 
+It was how to use cargo install --git ... to install the tool. Please see https://github.com/movebit/movefmt?tab=readme-ov-file#install as an example of what I was looking for. 
 
 ### Build from Source
 
