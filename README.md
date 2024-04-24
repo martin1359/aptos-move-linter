@@ -4,11 +4,14 @@ A linter for the Move programming language used within the Aptos ecosystem. This
 
 ## Installation
 
-**Prerequisites**
+Run the following command to install move-lint.
+   ```bash
+   cargo install --git https://github.com/zmoveguy/aptos-move-linter --branch main move-lint
+   ```
+On MacOS and Linux, move-lint is typically installed in directory ~/.cargo/bin. Ensure to have this path in your PATH environment variable so move-lint can be executed from any location. This step can be done with the below command.
 
-* Rust toolchain ([https://rustup.rs](https://rustup.rs))
-
-It was how to use cargo install --git ... to install the tool. Please see https://github.com/movebit/movefmt?tab=readme-ov-file#install as an example of what I was looking for. 
+$ export PATH=~/.cargo/bin:$PATH
+You can also use the latest pre-built binaries appropriate for your OS from releases instead of installing it via cargo.
 
 ### Build from Source
 
