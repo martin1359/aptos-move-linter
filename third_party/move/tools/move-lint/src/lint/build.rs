@@ -54,16 +54,22 @@ fn compile_ast(path: &Path) -> Result<(CompiledModel, CompiledModel)> {
     let build_config_v1 = build_config.clone();
 
     let model_v2 = build_config
-        .move_model_v2_for_package(path, ModelConfig {
-            target_filter: None,
-            all_files_as_targets: false,
-        })
+        .move_model_v2_for_package(
+            path,
+            ModelConfig {
+                target_filter: None,
+                all_files_as_targets: false,
+            },
+        )
         .unwrap_or_else(|e| panic!("Unable to build move model: `{}`", e));
     let model_v1 = build_config_v1
-        .move_model_for_package(path, ModelConfig {
-            target_filter: None,
-            all_files_as_targets: false,
-        })
+        .move_model_for_package(
+            path,
+            ModelConfig {
+                target_filter: None,
+                all_files_as_targets: false,
+            },
+        )
         .unwrap_or_else(|e| panic!("Unable to build move model: `{}`", e));
     Ok((
         CompiledModel {

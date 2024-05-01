@@ -3,14 +3,17 @@
 
 //! Detect if any code is too deeply nested (> 5 levels). This usually means the code can be buggy
 //! and hard to read. The number of levels can be configured in the lint config.
+use codespan::FileId;
 use move_model::{
     ast::ExpData,
     model::{FunctionEnv, GlobalEnv},
 };
-use codespan::FileId;
 
+use crate::lint::{
+    utils::{add_diagnostic_and_emit, LintConfig},
+    visitor::ExpressionAnalysisVisitor,
+};
 use codespan_reporting::diagnostic::Diagnostic;
-use crate::lint::{visitor::ExpressionAnalysisVisitor, utils::{add_diagnostic_and_emit, LintConfig}};
 #[derive(Debug)]
 pub struct DeepNestingVisitor {
     nesting_level: usize,
@@ -36,7 +39,13 @@ impl DeepNestingVisitor {
 }
 
 impl ExpressionAnalysisVisitor for DeepNestingVisitor {
-    fn visit_function(&mut self, func_env: &FunctionEnv, env: &GlobalEnv, _: &LintConfig, diags: &mut Vec<Diagnostic<FileId>>) {
+    fn visit_function(
+        &mut self,
+        func_env: &FunctionEnv,
+        env: &GlobalEnv,
+        _: &LintConfig,
+        diags: &mut Vec<Diagnostic<FileId>>,
+    ) {
         if let Some(func) = func_env.get_def().as_ref() {
             func.visit_pre_post(
                 &mut (|up: bool, exp: &ExpData| {
@@ -60,7 +69,6 @@ impl ExpressionAnalysisVisitor for DeepNestingVisitor {
                             self.nesting_level -= 1;
                         }
                     }
-    
                 })
             );
         };
