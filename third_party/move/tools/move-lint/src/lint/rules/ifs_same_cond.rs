@@ -10,7 +10,7 @@ use crate::lint::{
 use codespan::FileId;
 use codespan_reporting::diagnostic::Diagnostic;
 use move_model::{
-    ast::ExpData,
+    ast::{ExpData, Operation},
     model::{FunctionEnv, GlobalEnv},
 };
 pub struct IfsSameCondVisitor {
@@ -42,8 +42,12 @@ impl IfsSameCondVisitor {
         env: &GlobalEnv,
         diags: &mut Vec<Diagnostic<FileId>>,
     ) {
-        let current_condition = self.get_condition_string(exp, env, func_env);
-        let founded_item = self.if_condition.contains(&current_condition);
+        let vars = &mut Vec::new();
+        let opers = &mut Vec::new();
+        let current_condition = self.get_condition_string(exp, env, func_env, vars, opers);
+
+        let founded_item =
+            !current_condition.is_empty() && self.if_condition.contains(&current_condition);
         if founded_item {
             let message =
                 "Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.";
@@ -65,34 +69,35 @@ impl IfsSameCondVisitor {
         exp: &ExpData,
         env: &GlobalEnv,
         func_env: &FunctionEnv,
+        vars: &mut Vec<String>,
+        opers: &mut Vec<Operation>,
     ) -> String {
+        // let mut cond_str_fmt: Vec<_> = Vec::new();
+        if let ExpData::Call(_, Operation::Exists(_), _) = exp {
+            return String::new();
+        }
         match exp {
             ExpData::Call(_, oper, vec_exp) => {
-                let mut vars = vec_exp
-                    .iter()
-                    .map(|e| match e.as_ref() {
-                        ExpData::LocalVar(_, symbol) => {
-                            env.symbol_pool().string(*symbol).to_string()
-                        },
-                        ExpData::Temporary(_, usize) => {
-                            let parameters = func_env.get_parameters();
-                            let param = get_var_info_from_func_param(*usize, &parameters);
-                            if let Some(param) = param {
-                                env.symbol_pool().string(param.0).to_string()
-                            } else {
-                                String::new()
-                            }
-                        },
-                        ExpData::Value(_, value) => env.display(value).to_string(),
-                        _ => String::new(),
-                    })
-                    .collect::<Vec<_>>();
-                vars.sort();
-                let exp_string = format!("{:?} {:?}", vars, oper);
-                exp_string
+                opers.push(oper.clone());
+                vec_exp.iter().for_each(|e| {
+                    self.get_condition_string(e, env, func_env, vars, opers);
+                });
             },
-            _ => String::new(),
-        }
+            ExpData::Value(_, value) => vars.push(env.display(value).to_string()),
+            ExpData::LocalVar(_, symbol) => {
+                vars.push(env.symbol_pool().string(*symbol).to_string())
+            },
+            ExpData::Temporary(_, usize) => {
+                let parameters = func_env.get_parameters();
+                let param = get_var_info_from_func_param(*usize, &parameters);
+                if let Some(param) = param {
+                    vars.push(env.symbol_pool().string(param.0).to_string())
+                }
+            },
+            _ => (),
+        };
+
+        format!("{:?} {:?}", vars, opers)
     }
 
     fn clear_if_condition(&mut self) {

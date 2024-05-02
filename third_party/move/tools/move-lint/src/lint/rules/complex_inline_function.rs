@@ -45,7 +45,6 @@ impl ComplexInlineFunctionVisitor {
     ) -> bool {
         let is_inline = func_env.is_inline();
         let usage_frequency = self.get_usage_frequency(func_env);
-
         let not_defined_at_0x1 = !self.is_defined_at_0x1(func_env, env);
 
         is_inline
@@ -59,7 +58,7 @@ impl ComplexInlineFunctionVisitor {
     }
 
     fn count_calls(&mut self, exp: &ExpData) {
-        if let ExpData::Call(_, _, _) = exp {
+        if let ExpData::Sequence(_, _) = exp {
             self.statement_count += 1;
         }
     }
