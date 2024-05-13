@@ -68,7 +68,8 @@ impl ExpressionAnalysisVisitor for DeepNestingVisitor {
                         } else if self.nesting_level > 0 {
                             self.nesting_level -= 1;
                         }
-                    }
+                    };
+                    true
                 })
             );
         };

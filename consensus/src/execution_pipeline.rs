@@ -18,7 +18,7 @@ use aptos_experimental_runtimes::thread_manager::optimal_min_len;
 use aptos_logger::{debug, error};
 use aptos_types::{
     block_executor::{config::BlockExecutorConfigFromOnchain, partitioner::ExecutableBlock},
-    block_metadata::BlockMetadata,
+    block_metadata_ext::BlockMetadataExt,
     transaction::{
         signature_verified_transaction::SignatureVerifiedTransaction, SignedTransaction,
     },
@@ -64,7 +64,7 @@ impl ExecutionPipeline {
     pub async fn queue(
         &self,
         block: Block,
-        metadata: BlockMetadata,
+        metadata: BlockMetadataExt,
         parent_block_id: HashValue,
         txn_generator: BlockPreparer,
         block_executor_onchain_config: BlockExecutorConfigFromOnchain,
@@ -122,15 +122,9 @@ impl ExecutionPipeline {
         }
         let validator_txns = block.validator_txns().cloned().unwrap_or_default();
         let input_txns = input_txns.unwrap();
-        let is_block_gas_limit = block_executor_onchain_config.has_any_block_gas_limit();
         tokio::task::spawn_blocking(move || {
-            let txns_to_execute = Block::transactions_to_execute_for_metadata(
-                block.id(),
-                validator_txns,
-                input_txns.clone(),
-                metadata,
-                is_block_gas_limit,
-            );
+            let txns_to_execute =
+                Block::combine_to_input_transactions(validator_txns, input_txns.clone(), metadata);
             let sig_verified_txns: Vec<SignatureVerifiedTransaction> =
                 SIG_VERIFY_POOL.install(|| {
                     let num_txns = txns_to_execute.len();
@@ -253,7 +247,7 @@ impl ExecutionPipeline {
 
 struct PrepareBlockCommand {
     block: Block,
-    metadata: BlockMetadata,
+    metadata: BlockMetadataExt,
     block_executor_onchain_config: BlockExecutorConfigFromOnchain,
     // The parent block id.
     parent_block_id: HashValue,

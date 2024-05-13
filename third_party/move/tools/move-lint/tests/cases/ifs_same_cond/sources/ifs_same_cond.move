@@ -20,6 +20,22 @@ module NamedAddr::Detector {
         } else if (y < x) {
         };
 
+        if(x < y){
+            if(std::features::module_event_migration_enabled()) {
+
+            }
+        } else if (std::features::module_event_migration_enabled()) {
+
+        };
+
+        if(std::features::module_event_migration_enabled()){
+            if(std::features::module_event_migration_enabled()) {
+
+            }
+        } else if (std::features::module_event_migration_enabled()) {
+
+        };
+ 
     }
 
 }

@@ -55,8 +55,9 @@ impl UnusedBorrowGlobalMutVisitor {
                     all_borrow_mut_refs.remove_entry(src);
                     all_borrow_mut_refs.insert(*target, attr_id_clone);
                 }
+                assigned_refs.insert(*src, *target);
             },
-            Bytecode::Assign(_, target, src, AssignKind::Move | AssignKind::Copy) => {
+            Bytecode::Assign(_, target, src, AssignKind::Move) => {
                 assigned_refs.insert(*src, *target);
             },
             Bytecode::Call(_, dest, Operation::BorrowField(_, _, _, _), srcs, _) => {
@@ -83,6 +84,18 @@ impl UnusedBorrowGlobalMutVisitor {
         }
     }
 
+    fn find_borrow_global_temp_id(
+        &self,
+        temp_id: &usize,
+        all_assigned_refs: &BTreeMap<usize, usize>,
+    ) -> Option<usize> {
+        if let Some(ref_id) = all_assigned_refs.get(temp_id) {
+            self.find_borrow_global_temp_id(ref_id, all_assigned_refs)
+        } else {
+            Some(temp_id.clone())
+        }
+    }
+
     fn find_unused_borrow_mut_refs(
         &self,
         all_borrow_mut_refs: &mut BTreeMap<usize, AttrId>,
@@ -93,7 +106,12 @@ impl UnusedBorrowGlobalMutVisitor {
         all_borrow_mut_refs.clone().iter().for_each(|(&ref_id, _)| {
             if let Some(&assigned_id) = all_assigned_refs.get(&ref_id) {
                 let is_modified = if let Some(&mapped_ref) = borrow_fields.get(&assigned_id) {
-                    modified.contains(&mapped_ref)
+                    let borrow_temp_id =
+                        self.find_borrow_global_temp_id(&mapped_ref, all_assigned_refs);
+                    if borrow_temp_id.is_none() {
+                        return;
+                    }
+                    modified.contains(&borrow_temp_id.unwrap())
                 } else {
                     modified.contains(&ref_id)
                 };

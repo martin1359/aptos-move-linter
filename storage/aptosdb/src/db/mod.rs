@@ -5,10 +5,12 @@
 use crate::{
     backup::{backup_handler::BackupHandler, restore_utils},
     common::MAX_NUM_EPOCH_ENDING_LEDGER_INFO,
-    errors::AptosDbError,
     event_store::EventStore,
-    ledger_db::{LedgerDb, LedgerDbSchemaBatches},
-    ledger_store::LedgerStore,
+    ledger_db::{
+        ledger_metadata_db::LedgerMetadataDb,
+        transaction_auxiliary_data_db::TransactionAuxiliaryDataDb,
+        transaction_info_db::TransactionInfoDb, LedgerDb, LedgerDbSchemaBatches,
+    },
     metrics::{
         API_LATENCY_SECONDS, COMMITTED_TXNS, LATEST_TXN_VERSION, LEDGER_VERSION, NEXT_BLOCK_EPOCH,
         OTHER_TIMERS_SECONDS,
@@ -25,7 +27,6 @@ use crate::{
     transaction_store::TransactionStore,
     utils::new_sharded_kv_schema_batch,
 };
-use anyhow::{anyhow, bail, ensure, Result};
 use aptos_config::config::{
     PrunerConfig, RocksdbConfig, RocksdbConfigs, StorageDirPaths, NO_OP_STORAGE_PRUNER_CONFIG,
 };
@@ -37,11 +38,9 @@ use aptos_metrics_core::TimerHelper;
 use aptos_schemadb::{ReadOptions, SchemaBatch};
 use aptos_scratchpad::SparseMerkleTree;
 use aptos_storage_interface::{
-    block_info::{BlockInfo, BlockInfoV0},
-    cached_state_view::ShardedStateCache,
-    state_delta::StateDelta,
-    state_view::DbStateView,
-    DbReader, DbWriter, ExecutedTrees, Order, StateSnapshotReceiver, MAX_REQUEST_LIMIT,
+    cached_state_view::ShardedStateCache, db_anyhow as anyhow, db_ensure as ensure,
+    db_other_bail as bail, state_delta::StateDelta, AptosDbError, DbReader, DbWriter,
+    ExecutedTrees, Order, Result, StateSnapshotReceiver, MAX_REQUEST_LIMIT,
 };
 use aptos_types::{
     account_address::AccountAddress,
@@ -51,7 +50,6 @@ use aptos_types::{
     epoch_state::EpochState,
     event::EventKey,
     ledger_info::LedgerInfoWithSignatures,
-    on_chain_config::{CurrentTimeMicroseconds, OnChainConfig},
     proof::{
         accumulator::InMemoryAccumulator, AccumulatorConsistencyProof, SparseMerkleProofExt,
         TransactionAccumulatorRangeProof, TransactionAccumulatorSummary,
@@ -59,17 +57,16 @@ use aptos_types::{
     },
     state_proof::StateProof,
     state_store::{
-        state_key::StateKey,
-        state_key_prefix::StateKeyPrefix,
+        state_key::{prefix::StateKeyPrefix, StateKey},
         state_storage_usage::StateStorageUsage,
         state_value::{StateValue, StateValueChunkWithProof},
         table::{TableHandle, TableInfo},
         ShardedStateUpdates,
     },
     transaction::{
-        AccountTransactionsWithProof, Transaction, TransactionInfo, TransactionListWithProof,
-        TransactionOutput, TransactionOutputListWithProof, TransactionToCommit,
-        TransactionWithProof, Version,
+        AccountTransactionsWithProof, Transaction, TransactionAuxiliaryData, TransactionInfo,
+        TransactionListWithProof, TransactionOutput, TransactionOutputListWithProof,
+        TransactionToCommit, TransactionWithProof, Version,
     },
     write_set::WriteSet,
 };
@@ -77,6 +74,7 @@ use aptos_vm::data_cache::AsMoveResolver;
 use move_resource_viewer::MoveValueAnnotator;
 use rayon::prelude::*;
 use std::{
+    cell::Cell,
     fmt::{Debug, Formatter},
     iter::Iterator,
     path::Path,
@@ -95,7 +93,6 @@ pub struct AptosDB {
     pub(crate) ledger_db: Arc<LedgerDb>,
     pub(crate) state_kv_db: Arc<StateKvDb>,
     pub(crate) event_store: Arc<EventStore>,
-    pub(crate) ledger_store: Arc<LedgerStore>,
     pub(crate) state_store: Arc<StateStore>,
     pub(crate) transaction_store: Arc<TransactionStore>,
     ledger_pruner: LedgerPrunerManager,
@@ -112,8 +109,11 @@ include!("include/aptosdb_writer.rs");
 // Other private methods.
 include!("include/aptosdb_internal.rs");
 // Testonly methods.
-#[cfg(any(test, feature = "fuzzing"))]
+#[cfg(any(test, feature = "fuzzing", feature = "consensus-only-perf-test"))]
 include!("include/aptosdb_testonly.rs");
+
+#[cfg(feature = "consensus-only-perf-test")]
+pub mod fake_aptosdb;
 
 impl AptosDB {
     pub fn open(
@@ -183,12 +183,7 @@ impl AptosDB {
 
     /// Gets an instance of `BackupHandler` for data backup purpose.
     pub fn get_backup_handler(&self) -> BackupHandler {
-        BackupHandler::new(
-            Arc::clone(&self.ledger_store),
-            Arc::clone(&self.transaction_store),
-            Arc::clone(&self.state_store),
-            Arc::clone(&self.event_store),
-        )
+        BackupHandler::new(Arc::clone(&self.state_store), Arc::clone(&self.ledger_db))
     }
 
     /// Creates new physical DB checkpoint in directory specified by `path`.
@@ -217,15 +212,16 @@ impl AptosDB {
     }
 
     pub fn commit_genesis_ledger_info(&self, genesis_li: &LedgerInfoWithSignatures) -> Result<()> {
-        let ledger_batch = SchemaBatch::new();
-        let current_epoch = self
-            .ledger_store
+        let ledger_metadata_db = self.ledger_db.metadata_db();
+        let current_epoch = ledger_metadata_db
             .get_latest_ledger_info_option()
             .map_or(0, |li| li.ledger_info().next_block_epoch());
-        ensure!(genesis_li.ledger_info().epoch() == current_epoch && current_epoch == 0);
-        self.ledger_store
-            .put_ledger_info(genesis_li, &ledger_batch)?;
-
-        self.ledger_db.metadata_db().write_schemas(ledger_batch)
+        ensure!(
+            genesis_li.ledger_info().epoch() == current_epoch && current_epoch == 0,
+            "Genesis ledger info epoch is not 0"
+        );
+        let ledger_batch = SchemaBatch::new();
+        ledger_metadata_db.put_ledger_info(genesis_li, &ledger_batch)?;
+        ledger_metadata_db.write_schemas(ledger_batch)
     }
 }

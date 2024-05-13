@@ -1,6 +1,7 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
+pub mod absurd_extreme_comparisons;
 pub mod bool_comparison;
 pub mod check_redundant_boolean_expressions;
 pub mod combinable_bool_conditions;
@@ -8,6 +9,9 @@ pub mod complex_inline_function;
 pub mod constant_naming;
 pub mod deep_nesting;
 pub mod empty_loop;
+pub mod event_attribute_ability;
+pub mod exceed_blocks;
+pub mod exceed_dependencies;
 pub mod exceed_fields;
 pub mod exceed_params;
 pub mod explicit_self_assignments;
@@ -19,6 +23,7 @@ pub mod multiplication_before_division;
 pub mod needless_bool;
 pub mod out_of_bounds_array_indexing;
 pub mod overflow_multiplication_detector;
+pub mod randomness_public_entry;
 pub mod redundant_deref_ref;
 pub mod redundant_ref_deref;
 pub mod return_at_end_of_block;

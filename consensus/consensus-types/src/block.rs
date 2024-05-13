@@ -15,8 +15,10 @@ use aptos_types::{
     account_address::AccountAddress,
     block_info::BlockInfo,
     block_metadata::BlockMetadata,
+    block_metadata_ext::BlockMetadataExt,
     epoch_state::EpochState,
     ledger_info::LedgerInfo,
+    randomness::Randomness,
     transaction::{SignedTransaction, Transaction, Version},
     validator_signer::ValidatorSigner,
     validator_txn::ValidatorTransaction,
@@ -109,7 +111,11 @@ impl Block {
             None => 0,
             Some(payload) => match payload {
                 Payload::InQuorumStore(pos) => pos.proofs.len(),
-                Payload::DirectMempool(txns) => txns.len(),
+                Payload::DirectMempool(_txns) => 0,
+                Payload::InQuorumStoreWithLimit(pos) => pos.proof_with_data.proofs.len(),
+                Payload::QuorumStoreInlineHybrid(inline_batches, proof_with_data, _) => {
+                    inline_batches.len() + proof_with_data.proofs.len()
+                },
             },
         }
     }
@@ -410,48 +416,19 @@ impl Block {
         Ok(())
     }
 
-    pub fn transactions_to_execute_for_metadata(
-        block_id: HashValue,
+    pub fn combine_to_input_transactions(
         validator_txns: Vec<ValidatorTransaction>,
         txns: Vec<SignedTransaction>,
-        metadata: BlockMetadata,
-        is_block_gas_limit: bool,
+        metadata: BlockMetadataExt,
     ) -> Vec<Transaction> {
-        let txns = once(Transaction::BlockMetadata(metadata))
+        once(Transaction::from(metadata))
             .chain(
                 validator_txns
                     .into_iter()
                     .map(Transaction::ValidatorTransaction),
             )
-            .chain(txns.into_iter().map(Transaction::UserTransaction));
-
-        if is_block_gas_limit {
-            // After the per-block gas limit change, StateCheckpoint txn
-            // is inserted after block execution
-            txns.collect()
-        } else {
-            // Before the per-block gas limit change, StateCheckpoint txn
-            // is inserted here for compatibility.
-            txns.chain(once(Transaction::StateCheckpoint(block_id)))
-                .collect()
-        }
-    }
-
-    pub fn transactions_to_execute(
-        &self,
-        validators: &[AccountAddress],
-        validator_txns: Vec<ValidatorTransaction>,
-        txns: Vec<SignedTransaction>,
-        is_block_gas_limit: bool,
-    ) -> Vec<Transaction> {
-        let metadata = self.new_block_metadata(validators);
-        Self::transactions_to_execute_for_metadata(
-            self.id,
-            validator_txns,
-            txns,
-            metadata,
-            is_block_gas_limit,
-        )
+            .chain(txns.into_iter().map(Transaction::UserTransaction))
+            .collect()
     }
 
     fn previous_bitvec(&self) -> BitVec {
@@ -476,6 +453,28 @@ impl Block {
                     Self::failed_authors_to_indices(validators, failed_authors)
                 }),
             self.timestamp_usecs(),
+        )
+    }
+
+    pub fn new_metadata_with_randomness(
+        &self,
+        validators: &[AccountAddress],
+        randomness: Option<Randomness>,
+    ) -> BlockMetadataExt {
+        BlockMetadataExt::new_v1(
+            self.id(),
+            self.epoch(),
+            self.round(),
+            self.author().unwrap_or(AccountAddress::ZERO),
+            self.previous_bitvec().into(),
+            // For nil block, we use 0x0 which is convention for nil address in move.
+            self.block_data()
+                .failed_authors()
+                .map_or(vec![], |failed_authors| {
+                    Self::failed_authors_to_indices(validators, failed_authors)
+                }),
+            self.timestamp_usecs(),
+            randomness,
         )
     }
 

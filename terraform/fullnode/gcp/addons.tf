@@ -80,6 +80,7 @@ resource "helm_release" "pfn-addons" {
       }
       ingress = {
         class                           = "gce"
+        backend_http2                   = var.backend_http2
         gce_managed_certificate         = var.create_google_managed_ssl_certificate ? "aptos-${local.workspace_name}-ingress" : null
         gce_managed_certificate_domains = var.create_google_managed_ssl_certificate ? join(",", distinct(concat([local.domain], var.tls_sans))) : ""
         # loadBalancerSourceRanges = var.client_sources_ipv4 # not supported yet

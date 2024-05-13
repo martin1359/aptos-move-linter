@@ -1,12 +1,13 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::pipeline::buffer_manager::OrderedBlocks;
-use aptos_consensus_types::{
-    common::Round,
-    executed_block::ExecutedBlock,
-    randomness::{RandMetadata, Randomness},
+use crate::{
+    block_storage::tracing::{observe_block, BlockStage},
+    pipeline::buffer_manager::OrderedBlocks,
 };
+use aptos_consensus_types::{common::Round, pipelined_block::PipelinedBlock};
+use aptos_reliable_broadcast::DropGuard;
+use aptos_types::randomness::{FullRandMetadata, Randomness};
 use std::collections::{BTreeMap, HashMap};
 
 /// Maintain the ordered blocks received from consensus and corresponding randomness
@@ -14,10 +15,11 @@ pub struct QueueItem {
     ordered_blocks: OrderedBlocks,
     offsets_by_round: HashMap<Round, usize>,
     num_undecided_blocks: usize,
+    broadcast_handle: Option<Vec<DropGuard>>,
 }
 
 impl QueueItem {
-    pub fn new(ordered_blocks: OrderedBlocks) -> Self {
+    pub fn new(ordered_blocks: OrderedBlocks, broadcast_handle: Option<Vec<DropGuard>>) -> Self {
         let len = ordered_blocks.ordered_blocks.len();
         assert!(len > 0);
         let offsets_by_round: HashMap<Round, usize> = ordered_blocks
@@ -30,6 +32,7 @@ impl QueueItem {
             ordered_blocks,
             offsets_by_round,
             num_undecided_blocks: len,
+            broadcast_handle,
         }
     }
 
@@ -49,16 +52,20 @@ impl QueueItem {
         self.num_undecided_blocks
     }
 
-    pub fn all_rand_metadata(&self) -> Vec<RandMetadata> {
+    pub fn all_rand_metadata(&self) -> Vec<FullRandMetadata> {
         self.blocks()
             .iter()
-            .map(|block| RandMetadata::from(block.block()))
+            .map(|block| FullRandMetadata::from(block.block()))
             .collect()
     }
 
     pub fn set_randomness(&mut self, round: Round, rand: Randomness) -> bool {
         let offset = self.offset(round);
         if !self.blocks()[offset].has_randomness() {
+            observe_block(
+                self.blocks()[offset].timestamp_usecs(),
+                BlockStage::RAND_ADD_DECISION,
+            );
             self.blocks_mut()[offset].set_randomness(rand);
             self.num_undecided_blocks -= 1;
             true
@@ -67,11 +74,11 @@ impl QueueItem {
         }
     }
 
-    fn blocks(&self) -> &[ExecutedBlock] {
+    fn blocks(&self) -> &[PipelinedBlock] {
         &self.ordered_blocks.ordered_blocks
     }
 
-    fn blocks_mut(&mut self) -> &mut [ExecutedBlock] {
+    fn blocks_mut(&mut self) -> &mut [PipelinedBlock] {
         &mut self.ordered_blocks.ordered_blocks
     }
 }
@@ -87,7 +94,14 @@ impl BlockQueue {
         }
     }
 
+    pub fn queue(&self) -> &BTreeMap<Round, QueueItem> {
+        &self.queue
+    }
+
     pub fn push_back(&mut self, item: QueueItem) {
+        for block in item.blocks() {
+            observe_block(block.timestamp_usecs(), BlockStage::RAND_ENTER);
+        }
         assert!(self.queue.insert(item.first_round(), item).is_none());
     }
 
@@ -97,6 +111,9 @@ impl BlockQueue {
         while let Some((_starting_round, item)) = self.queue.first_key_value() {
             if item.num_undecided() == 0 {
                 let (_, item) = self.queue.pop_first().unwrap();
+                for block in item.blocks() {
+                    observe_block(block.timestamp_usecs(), BlockStage::RAND_READY);
+                }
                 let QueueItem { ordered_blocks, .. } = item;
                 debug_assert!(ordered_blocks
                     .ordered_blocks
@@ -135,13 +152,13 @@ mod tests {
         block_queue::{BlockQueue, QueueItem},
         test_utils::create_ordered_blocks,
     };
-    use aptos_consensus_types::randomness::Randomness;
+    use aptos_types::randomness::Randomness;
     use std::collections::HashSet;
 
     #[test]
     fn test_queue_item() {
         let single_round = vec![1];
-        let mut item = QueueItem::new(create_ordered_blocks(single_round));
+        let mut item = QueueItem::new(create_ordered_blocks(single_round), None);
         assert_eq!(item.num_blocks(), 1);
         assert_eq!(item.offset(1), 0);
         assert_eq!(item.num_undecided(), 1);
@@ -149,7 +166,7 @@ mod tests {
         assert_eq!(item.num_undecided(), 0);
 
         let multiple_rounds = vec![1, 2, 3, 5, 8, 13, 21, 34];
-        let mut item = QueueItem::new(create_ordered_blocks(multiple_rounds.clone()));
+        let mut item = QueueItem::new(create_ordered_blocks(multiple_rounds.clone()), None);
         assert_eq!(item.num_blocks(), multiple_rounds.len());
         assert_eq!(item.num_undecided(), item.num_blocks());
         for (idx, round) in multiple_rounds.iter().enumerate() {
@@ -166,7 +183,7 @@ mod tests {
         let mut queue = BlockQueue::new();
         let all_rounds = vec![vec![1], vec![2, 3], vec![5, 8, 13], vec![21, 34, 55]];
         for rounds in &all_rounds {
-            queue.push_back(QueueItem::new(create_ordered_blocks(rounds.clone())));
+            queue.push_back(QueueItem::new(create_ordered_blocks(rounds.clone()), None));
         }
 
         let exists_rounds: HashSet<_> = all_rounds.iter().flatten().collect();

@@ -77,7 +77,8 @@ impl ExpressionAnalysisVisitor for ReturnAtEndOfBlockVisitor {
                 &mut (|up: bool, exp: &ExpData| {
                     if !up {
                         self.exp_in_function.push(exp.clone());
-                    }
+                    };
+                    true
                 }),
             );
         }

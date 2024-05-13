@@ -1,4 +1,4 @@
-// ---- Model Dump
+// -- Model dump before bytecode pipeline
 module 0xc0ffee::m {
     public fun bar(): u64 {
         {
@@ -19,6 +19,7 @@ module 0xc0ffee::m {
           i
         }
     }
-    spec fun $bar(): u64;
-    spec fun $foo(): u64;
 } // end 0xc0ffee::m
+
+
+============ bytecode verification succeeded ========

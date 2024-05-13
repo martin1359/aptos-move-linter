@@ -27,6 +27,8 @@ ingress:
   gce_managed_certificate_domains:
   # -- Security policy to apply to the backend services behind the ingress
   gce_security_policy:
+  # -- Enable HTTP/2 on the backends shards
+  backend_http2: false
 
 load_test:
   # -- Whether to enable the load test CronJob

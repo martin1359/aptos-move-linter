@@ -50,6 +50,7 @@ pub trait ExpressionAnalysisVisitor {
                 } else {
                     self.post_visit_expression(exp, func_env, env, lint_config, diags);
                 }
+                true
             });
         }
     }

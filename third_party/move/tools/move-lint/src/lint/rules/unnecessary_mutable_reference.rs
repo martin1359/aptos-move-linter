@@ -49,7 +49,8 @@ impl UnnecessaryMutableReferenceLint {
                                 let func_env = env.get_function(module_id.qualified(*fun_id));
                                 self.check_arguments(args, &func_env, env, diags);
                             }
-                        }
+                        };
+                        true
                     }),
                 );
             }

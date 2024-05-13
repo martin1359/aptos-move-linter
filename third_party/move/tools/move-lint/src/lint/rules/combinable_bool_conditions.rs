@@ -56,10 +56,10 @@ impl CombinableBoolVisitor {
                         }
                     }
                 }
-                let left = &mut args[0].used_temporaries(env);
-                let right = &mut args[1].used_temporaries(env);
-                left.sort();
-                right.sort();
+                let left = &mut args[0].used_temporaries();
+                let right = &mut args[1].used_temporaries();
+                // left.sort();
+                // right.sort();
                 if left == right {
                     let operation_pairs = [
                         (

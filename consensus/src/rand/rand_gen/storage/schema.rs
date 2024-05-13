@@ -1,29 +1,19 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::rand::rand_gen::types::{
-    AugData, AugDataId, AugmentedData, CertifiedAugData, Proof, RandDecision, RandShare, Share,
-    ShareId,
-};
-use aptos_consensus_types::randomness::RandMetadata;
+use crate::rand::rand_gen::types::{AugData, AugDataId, CertifiedAugData, TAugmentedData};
 use aptos_schemadb::{
+    define_schema,
     schema::{KeyCodec, Schema, ValueCodec},
     ColumnFamilyName,
 };
 use std::marker::PhantomData;
 
-pub(crate) const SHARE_CF_NAME: ColumnFamilyName = "rand_share";
-#[derive(Debug)]
-pub struct RandShareSchema<S>(PhantomData<S>);
+pub(crate) const KEY_PAIR_CF_NAME: ColumnFamilyName = "key_pair";
 
-impl<S: Share> Schema for RandShareSchema<S> {
-    type Key = ShareId;
-    type Value = RandShare<S>;
+define_schema!(KeyPairSchema, (), (u64, Vec<u8>), KEY_PAIR_CF_NAME);
 
-    const COLUMN_FAMILY_NAME: ColumnFamilyName = SHARE_CF_NAME;
-}
-
-impl<S: Share> KeyCodec<RandShareSchema<S>> for ShareId {
+impl KeyCodec<KeyPairSchema> for () {
     fn encode_key(&self) -> anyhow::Result<Vec<u8>> {
         Ok(bcs::to_bytes(self)?)
     }
@@ -33,40 +23,9 @@ impl<S: Share> KeyCodec<RandShareSchema<S>> for ShareId {
     }
 }
 
-impl<S: Share> ValueCodec<RandShareSchema<S>> for RandShare<S> {
+impl ValueCodec<KeyPairSchema> for (u64, Vec<u8>) {
     fn encode_value(&self) -> anyhow::Result<Vec<u8>> {
-        Ok(bcs::to_bytes(&self)?)
-    }
-
-    fn decode_value(data: &[u8]) -> anyhow::Result<Self> {
-        Ok(bcs::from_bytes(data)?)
-    }
-}
-
-pub(crate) const DECISION_CF_NAME: ColumnFamilyName = "rand_decision";
-#[derive(Debug)]
-pub struct RandDecisionSchema<P>(PhantomData<P>);
-
-impl<P: Proof> Schema for RandDecisionSchema<P> {
-    type Key = RandMetadata;
-    type Value = RandDecision<P>;
-
-    const COLUMN_FAMILY_NAME: ColumnFamilyName = DECISION_CF_NAME;
-}
-
-impl<P: Proof> KeyCodec<RandDecisionSchema<P>> for RandMetadata {
-    fn encode_key(&self) -> anyhow::Result<Vec<u8>> {
         Ok(bcs::to_bytes(self)?)
-    }
-
-    fn decode_key(data: &[u8]) -> anyhow::Result<Self> {
-        Ok(bcs::from_bytes(data)?)
-    }
-}
-
-impl<P: Proof> ValueCodec<RandDecisionSchema<P>> for RandDecision<P> {
-    fn encode_value(&self) -> anyhow::Result<Vec<u8>> {
-        Ok(bcs::to_bytes(&self)?)
     }
 
     fn decode_value(data: &[u8]) -> anyhow::Result<Self> {
@@ -78,14 +37,14 @@ pub(crate) const AUG_DATA_CF_NAME: ColumnFamilyName = "aug_data";
 #[derive(Debug)]
 pub struct AugDataSchema<D>(PhantomData<D>);
 
-impl<D: AugmentedData> Schema for AugDataSchema<D> {
+impl<D: TAugmentedData> Schema for AugDataSchema<D> {
     type Key = AugDataId;
     type Value = AugData<D>;
 
     const COLUMN_FAMILY_NAME: ColumnFamilyName = AUG_DATA_CF_NAME;
 }
 
-impl<D: AugmentedData> KeyCodec<AugDataSchema<D>> for AugDataId {
+impl<D: TAugmentedData> KeyCodec<AugDataSchema<D>> for AugDataId {
     fn encode_key(&self) -> anyhow::Result<Vec<u8>> {
         Ok(bcs::to_bytes(self)?)
     }
@@ -95,7 +54,7 @@ impl<D: AugmentedData> KeyCodec<AugDataSchema<D>> for AugDataId {
     }
 }
 
-impl<D: AugmentedData> ValueCodec<AugDataSchema<D>> for AugData<D> {
+impl<D: TAugmentedData> ValueCodec<AugDataSchema<D>> for AugData<D> {
     fn encode_value(&self) -> anyhow::Result<Vec<u8>> {
         Ok(bcs::to_bytes(&self)?)
     }
@@ -109,14 +68,14 @@ pub(crate) const CERTIFIED_AUG_DATA_CF_NAME: ColumnFamilyName = "certified_aug_d
 #[derive(Debug)]
 pub struct CertifiedAugDataSchema<D>(PhantomData<D>);
 
-impl<D: AugmentedData> Schema for CertifiedAugDataSchema<D> {
+impl<D: TAugmentedData> Schema for CertifiedAugDataSchema<D> {
     type Key = AugDataId;
     type Value = CertifiedAugData<D>;
 
     const COLUMN_FAMILY_NAME: ColumnFamilyName = CERTIFIED_AUG_DATA_CF_NAME;
 }
 
-impl<D: AugmentedData> KeyCodec<CertifiedAugDataSchema<D>> for AugDataId {
+impl<D: TAugmentedData> KeyCodec<CertifiedAugDataSchema<D>> for AugDataId {
     fn encode_key(&self) -> anyhow::Result<Vec<u8>> {
         Ok(bcs::to_bytes(self)?)
     }
@@ -126,7 +85,7 @@ impl<D: AugmentedData> KeyCodec<CertifiedAugDataSchema<D>> for AugDataId {
     }
 }
 
-impl<D: AugmentedData> ValueCodec<CertifiedAugDataSchema<D>> for CertifiedAugData<D> {
+impl<D: TAugmentedData> ValueCodec<CertifiedAugDataSchema<D>> for CertifiedAugData<D> {
     fn encode_value(&self) -> anyhow::Result<Vec<u8>> {
         Ok(bcs::to_bytes(&self)?)
     }

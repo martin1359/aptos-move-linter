@@ -22,7 +22,10 @@ use move_core_types::{
 };
 use move_resource_viewer::MoveValueAnnotator;
 use move_vm_runtime::{
-    move_vm::MoveVM, native_extensions::NativeContextExtensions,
+    config::VMConfig,
+    module_traversal::{TraversalContext, TraversalStorage},
+    move_vm::MoveVM,
+    native_extensions::NativeContextExtensions,
     native_functions::NativeFunctionTable,
 };
 use move_vm_test_utils::{
@@ -130,6 +133,7 @@ impl TestRunner {
         // TODO: maybe we should require the clients to always pass in a list of native functions so
         // we don't have to make assumptions about their gas parameters.
         native_function_table: Option<NativeFunctionTable>,
+        genesis_state: Option<ChangeSet>,
         cost_table: Option<CostTable>,
         record_writeset: bool,
         #[cfg(feature = "evm-backend")] evm: bool,
@@ -140,7 +144,10 @@ impl TestRunner {
             .map(|(filepath, _)| filepath.to_string())
             .collect();
         let modules = tests.module_info.values().map(|info| &info.module);
-        let starting_storage_state = setup_test_storage(modules)?;
+        let mut starting_storage_state = setup_test_storage(modules)?;
+        if let Some(genesis_state) = genesis_state {
+            starting_storage_state.apply(genesis_state)?;
+        }
         let native_function_table = native_function_table.unwrap_or_else(|| {
             move_stdlib::natives::all_natives(
                 AccountAddress::from_hex_literal("0x1").unwrap(),
@@ -248,6 +255,7 @@ impl<'a, 'b, W: Write> TestOutput<'a, 'b, W> {
 }
 
 impl SharedTestingConfig {
+    #[allow(clippy::field_reassign_with_default)]
     fn execute_via_move_vm(
         &self,
         test_plan: &ModuleTestPlan,
@@ -259,7 +267,10 @@ impl SharedTestingConfig {
         VMResult<Vec<Vec<u8>>>,
         TestRunInfo,
     ) {
-        let move_vm = MoveVM::new(self.native_function_table.clone()).unwrap();
+        let mut config = VMConfig::default();
+        config.paranoid_type_checks = true;
+
+        let move_vm = MoveVM::new_with_config(self.native_function_table.clone(), config).unwrap();
         let extensions = extensions::new_extensions();
         let mut session =
             move_vm.new_session_with_extensions(&self.starting_storage_state, extensions);
@@ -267,12 +278,14 @@ impl SharedTestingConfig {
         // TODO: collect VM logs if the verbose flag (i.e, `self.verbose`) is set
 
         let now = Instant::now();
+        let storage = TraversalStorage::new();
         let serialized_return_values_result = session.execute_function_bypass_visibility(
             &test_plan.module_id,
             IdentStr::new(function_name).unwrap(),
             vec![], // no ty args, at least for now
             serialize_values(test_info.arguments.iter()),
             &mut gas_meter,
+            &mut TraversalContext::new(&storage),
         );
         let mut return_result = serialized_return_values_result.map(|res| {
             res.return_values

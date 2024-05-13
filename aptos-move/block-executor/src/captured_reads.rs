@@ -1,6 +1,7 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::{types::InputOutputKey, value_exchange::filter_value_for_exchange};
 use anyhow::bail;
 use aptos_aggregator::{
     delta_math::DeltaHistory,
@@ -19,7 +20,7 @@ use aptos_mvhashmap::{
     versioned_group_data::VersionedGroupData,
 };
 use aptos_types::{
-    aggregator::PanicError, state_store::state_value::StateValueMetadataKind,
+    delayed_fields::PanicError, state_store::state_value::StateValueMetadata,
     transaction::BlockExecutableTransaction as Transaction, write_set::TransactionWrite,
 };
 use aptos_vm_types::resolver::ResourceGroupSize;
@@ -31,7 +32,7 @@ use std::{
             Entry,
             Entry::{Occupied, Vacant},
         },
-        HashMap, HashSet,
+        BTreeMap, HashMap, HashSet,
     },
     sync::Arc,
 };
@@ -53,16 +54,16 @@ pub(crate) enum ReadKind {
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""), Debug(bound = ""), PartialEq(bound = ""))]
 pub(crate) enum DataRead<V> {
-    // Version supercedes V comparison.
+    // Version supersedes V comparison.
     Versioned(
         Version,
         // Currently, we are conservative and check the version for equality
         // (version implies value equality, but not vice versa). TODO: when
         // comparing the instances of V is cheaper, compare those instead.
         #[derivative(PartialEq = "ignore", Debug = "ignore")] Arc<V>,
-        Option<Arc<MoveTypeLayout>>,
+        #[derivative(PartialEq = "ignore", Debug = "ignore")] Option<Arc<MoveTypeLayout>>,
     ),
-    Metadata(Option<StateValueMetadataKind>),
+    Metadata(Option<StateValueMetadata>),
     Exists(bool),
     /// Read resolved an aggregatorV1 delta to a value.
     /// TODO[agg_v1](cleanup): deprecate.
@@ -137,7 +138,9 @@ impl<V: TransactionWrite> DataRead<V> {
                 DataRead::Metadata(v.as_state_value_metadata())
             },
             (DataRead::Versioned(_, v, _), ReadKind::Exists) => DataRead::Exists(!v.is_deletion()),
-            (DataRead::Resolved(_), ReadKind::Metadata) => DataRead::Metadata(Some(None)),
+            (DataRead::Resolved(_), ReadKind::Metadata) => {
+                DataRead::Metadata(Some(StateValueMetadata::none()))
+            },
             (DataRead::Resolved(_), ReadKind::Exists) => DataRead::Exists(true),
             (DataRead::Metadata(maybe_metadata), ReadKind::Exists) => {
                 DataRead::Exists(maybe_metadata.is_some())
@@ -196,7 +199,7 @@ pub enum DelayedFieldRead {
     // are all valid and produce the same outcome.
     // Only boolean outcomes of "try_add_delta" operations have been returned to the caller,
     // and so we need to respect that those return the same outcome when doing the validation.
-    // Running inner_aggregator_value is kept only for internal bookeeping - and is used to
+    // Running inner_aggregator_value is kept only for internal bookkeeping - and is used to
     // as a value against which results are computed, but is not checked for read validation.
     // Only aggregators can be in the HistoryBounded state.
     HistoryBounded {
@@ -324,10 +327,23 @@ impl<T: Transaction> CapturedReads<T> {
     // Return an iterator over the captured reads.
     pub(crate) fn get_read_values_with_delayed_fields(
         &self,
-    ) -> impl Iterator<Item = (&T::Key, &DataRead<T::Value>)> {
+        delayed_write_set_ids: &HashSet<T::Identifier>,
+        skip: &HashSet<T::Key>,
+    ) -> Result<BTreeMap<T::Key, (StateValueMetadata, u64, Arc<MoveTypeLayout>)>, PanicError> {
         self.data_reads
             .iter()
-            .filter(|(_, v)| matches!(v, DataRead::Versioned(_, _, Some(_))))
+            .filter_map(|(key, data_read)| {
+                if skip.contains(key) {
+                    return None;
+                }
+
+                if let DataRead::Versioned(_version, value, Some(layout)) = data_read {
+                    filter_value_for_exchange::<T>(value, layout, delayed_write_set_ids, key)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 
     // Return an iterator over the captured group reads that contain a delayed field
@@ -335,8 +351,6 @@ impl<T: Transaction> CapturedReads<T> {
         &'a self,
         skip: &'a HashSet<T::Key>,
     ) -> impl Iterator<Item = (&T::Key, &GroupRead<T>)> {
-        // TODO[agg_v2](optimize) - We could potentially filter out inner_reads
-        // to only contain those that have Some(layout)
         self.group_reads.iter().filter(|(key, group_read)| {
             !skip.contains(key)
                 && group_read
@@ -608,7 +622,7 @@ impl<T: Transaction> CapturedReads<T> {
                     Err(Uninitialized) => {
                         unreachable!("May not be uninitialized if captured for validation");
                     },
-                    Err(TagSerializationError) => {
+                    Err(TagSerializationError(_)) => {
                         unreachable!("Should not require tag serialization");
                     },
                 }
@@ -662,6 +676,37 @@ impl<T: Transaction> CapturedReads<T> {
         Ok(true)
     }
 
+    pub(crate) fn get_read_summary(
+        &self,
+    ) -> HashSet<InputOutputKey<T::Key, T::Tag, T::Identifier>> {
+        let mut ret = HashSet::new();
+        for (key, read) in &self.data_reads {
+            if let DataRead::Versioned(_, _, _) = read {
+                ret.insert(InputOutputKey::Resource(key.clone()));
+            }
+        }
+
+        for (key, group_reads) in &self.group_reads {
+            for (tag, read) in &group_reads.inner_reads {
+                if let DataRead::Versioned(_, _, _) = read {
+                    ret.insert(InputOutputKey::Group(key.clone(), tag.clone()));
+                }
+            }
+        }
+
+        for key in &self.module_reads {
+            ret.insert(InputOutputKey::Resource(key.clone()));
+        }
+
+        for (key, read) in &self.delayed_field_reads {
+            if let DelayedFieldRead::Value { .. } = read {
+                ret.insert(InputOutputKey::DelayedField(*key));
+            }
+        }
+
+        ret
+    }
+
     pub(crate) fn mark_failure(&mut self) {
         self.speculative_failure = true;
     }
@@ -671,13 +716,49 @@ impl<T: Transaction> CapturedReads<T> {
     }
 }
 
+#[derive(Derivative)]
+#[derivative(Default(bound = "", new = "true"))]
+pub(crate) struct UnsyncReadSet<T: Transaction> {
+    pub(crate) resource_reads: HashSet<T::Key>,
+    pub(crate) module_reads: HashSet<T::Key>,
+    pub(crate) group_reads: HashMap<T::Key, HashSet<T::Tag>>,
+    pub(crate) delayed_field_reads: HashSet<T::Identifier>,
+}
+
+impl<T: Transaction> UnsyncReadSet<T> {
+    pub(crate) fn get_read_summary(
+        &self,
+    ) -> HashSet<InputOutputKey<T::Key, T::Tag, T::Identifier>> {
+        let mut ret = HashSet::new();
+        for key in &self.resource_reads {
+            ret.insert(InputOutputKey::Resource(key.clone()));
+        }
+
+        for (key, group_reads) in &self.group_reads {
+            for tag in group_reads {
+                ret.insert(InputOutputKey::Group(key.clone(), tag.clone()));
+            }
+        }
+
+        for key in &self.module_reads {
+            ret.insert(InputOutputKey::Resource(key.clone()));
+        }
+
+        for key in &self.delayed_field_reads {
+            ret.insert(InputOutputKey::DelayedField(*key));
+        }
+
+        ret
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::proptest_types::types::{raw_metadata, KeyType, MockEvent, ValueType};
-    use aptos_aggregator::types::DelayedFieldID;
     use aptos_mvhashmap::types::StorageVersion;
     use claims::{assert_err, assert_gt, assert_matches, assert_none, assert_ok, assert_some_eq};
+    use move_vm_types::delayed_values::delayed_field_id::DelayedFieldID;
     use test_case::test_case;
 
     #[test]
@@ -691,7 +772,10 @@ mod test {
         assert_eq!(
             DataRead::Versioned(
                 Err(StorageVersion),
-                Arc::new(ValueType::with_len_and_metadata(1, None)),
+                Arc::new(ValueType::with_len_and_metadata(
+                    1,
+                    StateValueMetadata::none()
+                )),
                 None,
             )
             .get_kind(),
@@ -702,7 +786,7 @@ mod test {
             ReadKind::Value
         );
         assert_eq!(
-            DataRead::Metadata::<ValueType>(Some(None)).get_kind(),
+            DataRead::Metadata::<ValueType>(Some(StateValueMetadata::none())).get_kind(),
             ReadKind::Metadata
         );
         assert_eq!(
@@ -756,12 +840,18 @@ mod test {
         // Legacy state values do not have metadata.
         let versioned_legacy = DataRead::Versioned(
             Err(StorageVersion),
-            Arc::new(ValueType::with_len_and_metadata(1, None)),
+            Arc::new(ValueType::with_len_and_metadata(
+                1,
+                StateValueMetadata::none(),
+            )),
             None,
         );
         let versioned_deletion = DataRead::Versioned(
             Ok((5, 1)),
-            Arc::new(ValueType::with_len_and_metadata(0, None)),
+            Arc::new(ValueType::with_len_and_metadata(
+                0,
+                StateValueMetadata::none(),
+            )),
             None,
         );
         let versioned_with_metadata = DataRead::Versioned(
@@ -771,7 +861,7 @@ mod test {
         );
         let resolved = DataRead::Resolved::<ValueType>(200);
         let deletion_metadata = DataRead::Metadata(None);
-        let legacy_metadata = DataRead::Metadata(Some(None));
+        let legacy_metadata = DataRead::Metadata(Some(StateValueMetadata::none()));
         let metadata = DataRead::Metadata(Some(raw_metadata(1)));
         let exists = DataRead::Exists(true);
         let not_exists = DataRead::Exists(false);
@@ -832,7 +922,10 @@ mod test {
             versioned_legacy,
             DataRead::Versioned(
                 Err(StorageVersion),
-                Arc::new(ValueType::with_len_and_metadata(10, None)),
+                Arc::new(ValueType::with_len_and_metadata(
+                    10,
+                    StateValueMetadata::none()
+                )),
                 None,
             )
         );
@@ -847,6 +940,10 @@ mod test {
         type Key = KeyType<u32>;
         type Tag = u32;
         type Value = ValueType;
+
+        fn user_txn_bytes_len(&self) -> usize {
+            0
+        }
     }
 
     macro_rules! assert_update_incorrect_use {
@@ -896,12 +993,18 @@ mod test {
         // Legacy state values do not have metadata.
         let versioned_legacy = DataRead::Versioned(
             Err(StorageVersion),
-            Arc::new(ValueType::with_len_and_metadata(1, None)),
+            Arc::new(ValueType::with_len_and_metadata(
+                1,
+                StateValueMetadata::none(),
+            )),
             None,
         );
         let versioned_deletion = DataRead::Versioned(
             Ok((5, 1)),
-            Arc::new(ValueType::with_len_and_metadata(0, None)),
+            Arc::new(ValueType::with_len_and_metadata(
+                0,
+                StateValueMetadata::none(),
+            )),
             None,
         );
         let versioned_with_metadata = DataRead::Versioned(
@@ -911,7 +1014,7 @@ mod test {
         );
         let resolved = DataRead::Resolved::<ValueType>(200);
         let deletion_metadata = DataRead::Metadata(None);
-        let legacy_metadata = DataRead::Metadata(Some(None));
+        let legacy_metadata = DataRead::Metadata(Some(StateValueMetadata::none()));
         let metadata = DataRead::Metadata(Some(raw_metadata(1)));
         let exists = DataRead::Exists(true);
         let not_exists = DataRead::Exists(false);
@@ -979,10 +1082,13 @@ mod test {
 
     fn legacy_reads_by_kind() -> Vec<DataRead<ValueType>> {
         let exists = DataRead::Exists(true);
-        let legacy_metadata = DataRead::Metadata(Some(None));
+        let legacy_metadata = DataRead::Metadata(Some(StateValueMetadata::none()));
         let versioned_legacy = DataRead::Versioned(
             Err(StorageVersion),
-            Arc::new(ValueType::with_len_and_metadata(1, None)),
+            Arc::new(ValueType::with_len_and_metadata(
+                1,
+                StateValueMetadata::none(),
+            )),
             None,
         );
         vec![exists, legacy_metadata, versioned_legacy]
@@ -991,7 +1097,10 @@ mod test {
     fn deletion_reads_by_kind() -> Vec<DataRead<ValueType>> {
         let versioned_deletion = DataRead::Versioned(
             Ok((5, 1)),
-            Arc::new(ValueType::with_len_and_metadata(0, None)),
+            Arc::new(ValueType::with_len_and_metadata(
+                0,
+                StateValueMetadata::none(),
+            )),
             None,
         );
         let deletion_metadata = DataRead::Metadata(None);
@@ -1148,7 +1257,10 @@ mod test {
         let mut captured_reads = CapturedReads::<TestTransactionType>::new();
         let versioned_legacy = DataRead::Versioned(
             Err(StorageVersion),
-            Arc::new(ValueType::with_len_and_metadata(1, None)),
+            Arc::new(ValueType::with_len_and_metadata(
+                1,
+                StateValueMetadata::none(),
+            )),
             None,
         );
         let resolved = DataRead::Resolved::<ValueType>(200);

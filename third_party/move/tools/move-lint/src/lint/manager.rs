@@ -44,7 +44,6 @@ impl VisitorManager {
         for linter in &mut self.linters {
             // Visit the module environment with the current linter.
             linter.visit_module(module_env.1, module_env.1.env, &mut self.diagnostics);
-
             // Visit each function within the module environment with the current linter.
             for func_env in module_env.1.get_functions() {
                 linter.visit_function_custom(
@@ -73,6 +72,7 @@ impl VisitorManager {
     }
 
     pub fn diagnostics(&self) -> Vec<Diagnostic<FileId>> {
+        eprintln!("Diagnostics: {:?}", self.diagnostics);
         self.diagnostics.clone()
     }
 }

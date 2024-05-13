@@ -149,6 +149,7 @@ resource "google_container_cluster" "aptos" {
       private_cluster_config,
     ]
   }
+  deletion_protection = false
 }
 
 resource "google_container_node_pool" "core" {

@@ -143,7 +143,8 @@ impl ExpressionAnalysisVisitor for OutOfBoundsArrayIndexingVisitor {
                             symbol,
                             diags,
                         );
-                    }
+                    };
+                    true
                 });
             }
         }

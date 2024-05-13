@@ -26,7 +26,7 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-type: nlb
     service.beta.kubernetes.io/oci-load-balancer-security-list-management-mode: All
     {{- if $.Values.service.domain }}
-    external-dns.alpha.kubernetes.io/hostname: vn{{$i}}.{{ $.Values.service.domain }}
+    external-dns.alpha.kubernetes.io/hostname: vn{{$i}}.{{ $.Values.service.domain }},val{{$i}}.{{ $.Values.service.domain }}
     {{- end }}
 spec:
   selector:
@@ -74,7 +74,7 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-type: nlb
     service.beta.kubernetes.io/oci-load-balancer-security-list-management-mode: All
     {{- if $.Values.service.domain }}
-    external-dns.alpha.kubernetes.io/hostname: {{ $config.dns_name }}{{$i}}.{{ $.Values.service.domain }}
+    external-dns.alpha.kubernetes.io/hostname: {{ $config.dns_name }}{{$i}}.{{ $.Values.service.domain }},{{ $config.name }}{{$i}}.{{ $.Values.service.domain }}
     {{- end }}
 spec:
   selector:
@@ -145,7 +145,6 @@ spec:
         app.kubernetes.io/name: haproxy
         app.kubernetes.io/instance: haproxy-{{$i}}
       annotations:
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
         checksum/haproxy.cfg: {{ tpl ($.Files.Get "files/haproxy.cfg") $ | sha256sum }}
     spec:
       {{- with $.Values.haproxy }}
@@ -205,6 +204,8 @@ spec:
         runAsNonRoot: false
         runAsUser: 0
         runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
       {{- end }}
       volumes:
       - name: haproxy-config

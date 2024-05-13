@@ -14,7 +14,6 @@ use move_model::{
     model::{FunctionEnv, GlobalEnv},
 };
 pub struct IfsSameCondVisitor {
-    if_condition: Vec<String>,
 }
 
 impl Default for IfsSameCondVisitor {
@@ -26,7 +25,6 @@ impl Default for IfsSameCondVisitor {
 impl IfsSameCondVisitor {
     pub fn new() -> Self {
         Self {
-            if_condition: Vec::new(),
         }
     }
 
@@ -35,32 +33,16 @@ impl IfsSameCondVisitor {
     }
 
     /// Checks if the current 'if' condition is a duplicate and sets the condition for future checks.
-    fn check_and_set_condition(
+    fn wrapper_condition_string(
         &mut self,
         exp: &ExpData,
         func_env: &FunctionEnv,
         env: &GlobalEnv,
-        diags: &mut Vec<Diagnostic<FileId>>,
-    ) {
+    ) -> String {
         let vars = &mut Vec::new();
         let opers = &mut Vec::new();
-        let current_condition = self.get_condition_string(exp, env, func_env, vars, opers);
+        self.get_condition_string(exp, env, func_env, vars, opers)
 
-        let founded_item =
-            !current_condition.is_empty() && self.if_condition.contains(&current_condition);
-        if founded_item {
-            let message =
-                "Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.";
-            add_diagnostic_and_emit(
-                &env.get_node_loc(exp.node_id()),
-                message,
-                codespan_reporting::diagnostic::Severity::Warning,
-                env,
-                diags,
-            );
-        } else {
-            self.if_condition.push(current_condition);
-        }
     }
 
     /// Constructs a string representation of the given condition for comparison purposes.
@@ -72,7 +54,6 @@ impl IfsSameCondVisitor {
         vars: &mut Vec<String>,
         opers: &mut Vec<Operation>,
     ) -> String {
-        // let mut cond_str_fmt: Vec<_> = Vec::new();
         if let ExpData::Call(_, Operation::Exists(_), _) = exp {
             return String::new();
         }
@@ -85,24 +66,21 @@ impl IfsSameCondVisitor {
             },
             ExpData::Value(_, value) => vars.push(env.display(value).to_string()),
             ExpData::LocalVar(_, symbol) => {
-                vars.push(env.symbol_pool().string(*symbol).to_string())
+                vars.push(env.symbol_pool().string(*symbol).to_string());
             },
             ExpData::Temporary(_, usize) => {
                 let parameters = func_env.get_parameters();
                 let param = get_var_info_from_func_param(*usize, &parameters);
                 if let Some(param) = param {
-                    vars.push(env.symbol_pool().string(param.0).to_string())
+                    vars.push(env.symbol_pool().string(param.0).to_string());
                 }
             },
             _ => (),
-        };
+        }
 
         format!("{:?} {:?}", vars, opers)
     }
 
-    fn clear_if_condition(&mut self) {
-        self.if_condition.clear();
-    }
 }
 
 impl ExpressionAnalysisVisitor for IfsSameCondVisitor {
@@ -118,13 +96,26 @@ impl ExpressionAnalysisVisitor for IfsSameCondVisitor {
             func.visit_pre_post(
                 &mut (|up: bool, exp: &ExpData| {
                     if !up {
-                        if let ExpData::IfElse(_, cond, _, _) = exp {
-                            self.check_and_set_condition(cond.as_ref(), func_env, env, diags);
+                        if let ExpData::IfElse(_, cond, _, if_else) = exp {
+                            if let ExpData::IfElse(_, if_else_cond, _, _) = if_else.as_ref() {
+                                if self.wrapper_condition_string(cond.as_ref(), func_env, env) == self.wrapper_condition_string(if_else_cond.as_ref(), func_env, env){
+                                    let message =
+                                        "Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.";
+                                    add_diagnostic_and_emit(
+                                        &env.get_node_loc(exp.node_id()),
+                                        message,
+                                        codespan_reporting::diagnostic::Severity::Warning,
+                                        env,
+                                        diags,
+                                    );
+                                }
+ 
+                            }
                         }
                     }
+                    true
                 }),
             );
-            self.clear_if_condition()
         }
     }
 }

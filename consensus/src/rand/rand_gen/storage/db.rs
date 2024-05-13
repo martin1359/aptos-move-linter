@@ -5,20 +5,16 @@ use crate::{
     error::DbError,
     rand::rand_gen::{
         storage::{
-            interface::{AugDataStorage, RandStorage},
+            interface::RandStorage,
             schema::{
-                AugDataSchema, CertifiedAugDataSchema, RandDecisionSchema, RandShareSchema,
-                AUG_DATA_CF_NAME, CERTIFIED_AUG_DATA_CF_NAME, DECISION_CF_NAME, SHARE_CF_NAME,
+                AugDataSchema, CertifiedAugDataSchema, KeyPairSchema, AUG_DATA_CF_NAME,
+                CERTIFIED_AUG_DATA_CF_NAME, KEY_PAIR_CF_NAME,
             },
         },
-        types::{
-            AugData, AugDataId, AugmentedData, CertifiedAugData, Proof, RandDecision, RandShare,
-            Share, ShareId,
-        },
+        types::{AugData, AugDataId, CertifiedAugData, TAugmentedData},
     },
 };
 use anyhow::Result;
-use aptos_consensus_types::randomness::RandMetadata;
 use aptos_logger::info;
 use aptos_schemadb::{schema::Schema, Options, ReadOptions, SchemaBatch, DB};
 use std::{path::Path, sync::Arc, time::Instant};
@@ -32,8 +28,7 @@ pub const RAND_DB_NAME: &str = "rand_db";
 impl RandDb {
     pub(crate) fn new<P: AsRef<Path> + Clone>(db_root_path: P) -> Self {
         let column_families = vec![
-            SHARE_CF_NAME,
-            DECISION_CF_NAME,
+            KEY_PAIR_CF_NAME,
             AUG_DATA_CF_NAME,
             CERTIFIED_AUG_DATA_CF_NAME,
         ];
@@ -78,67 +73,49 @@ impl RandDb {
     fn get_all<S: Schema>(&self) -> Result<Vec<(S::Key, S::Value)>, DbError> {
         let mut iter = self.db.iter::<S>(ReadOptions::default())?;
         iter.seek_to_first();
-        Ok(iter.collect::<Result<Vec<(S::Key, S::Value)>>>()?)
+        Ok(iter
+            .filter_map(|e| match e {
+                Ok((k, v)) => Some((k, v)),
+                Err(_) => None,
+            })
+            .collect::<Vec<(S::Key, S::Value)>>())
     }
 }
 
-impl<S: Share, P: Proof<Share = S>> RandStorage<S, P> for RandDb {
-    fn save_share(&self, share: &RandShare<S>) -> anyhow::Result<()> {
-        Ok(self.put::<RandShareSchema<S>>(&share.share_id(), share)?)
+impl<D: TAugmentedData> RandStorage<D> for RandDb {
+    fn save_key_pair_bytes(&self, epoch: u64, key_pair: Vec<u8>) -> Result<()> {
+        Ok(self.put::<KeyPairSchema>(&(), &(epoch, key_pair))?)
     }
 
-    fn save_decision(&self, decision: &RandDecision<P>) -> anyhow::Result<()> {
-        Ok(self.put::<RandDecisionSchema<P>>(decision.rand_metadata(), decision)?)
-    }
-
-    fn get_all_shares(&self) -> anyhow::Result<Vec<(ShareId, RandShare<S>)>> {
-        Ok(self.get_all::<RandShareSchema<S>>()?)
-    }
-
-    fn get_all_decision(&self) -> anyhow::Result<Vec<(RandMetadata, RandDecision<P>)>> {
-        Ok(self.get_all::<RandDecisionSchema<P>>()?)
-    }
-
-    fn remove_shares(&self, shares: impl Iterator<Item = RandShare<S>>) -> anyhow::Result<()> {
-        Ok(self.delete::<RandShareSchema<S>>(shares.map(|s| s.share_id()))?)
-    }
-
-    fn remove_decisions(
-        &self,
-        decisions: impl Iterator<Item = RandDecision<P>>,
-    ) -> anyhow::Result<()> {
-        Ok(self.delete::<RandDecisionSchema<P>>(decisions.map(|d| d.rand_metadata().clone()))?)
-    }
-}
-
-impl<D: AugmentedData> AugDataStorage<D> for RandDb {
-    fn save_aug_data(&self, aug_data: &AugData<D>) -> anyhow::Result<()> {
+    fn save_aug_data(&self, aug_data: &AugData<D>) -> Result<()> {
         Ok(self.put::<AugDataSchema<D>>(&aug_data.id(), aug_data)?)
     }
 
-    fn save_certified_aug_data(
-        &self,
-        certified_aug_data: &CertifiedAugData<D>,
-    ) -> anyhow::Result<()> {
+    fn save_certified_aug_data(&self, certified_aug_data: &CertifiedAugData<D>) -> Result<()> {
         Ok(self.put::<CertifiedAugDataSchema<D>>(&certified_aug_data.id(), certified_aug_data)?)
     }
 
-    fn get_all_aug_data(&self) -> anyhow::Result<Vec<(AugDataId, AugData<D>)>> {
+    fn get_key_pair_bytes(&self) -> Result<Option<(u64, Vec<u8>)>> {
+        Ok(self.get_all::<KeyPairSchema>()?.pop().map(|(_, v)| v))
+    }
+
+    fn get_all_aug_data(&self) -> Result<Vec<(AugDataId, AugData<D>)>> {
         Ok(self.get_all::<AugDataSchema<D>>()?)
     }
 
-    fn get_all_certified_aug_data(&self) -> anyhow::Result<Vec<(AugDataId, CertifiedAugData<D>)>> {
+    fn get_all_certified_aug_data(&self) -> Result<Vec<(AugDataId, CertifiedAugData<D>)>> {
         Ok(self.get_all::<CertifiedAugDataSchema<D>>()?)
     }
 
-    fn remove_aug_data(&self, aug_data: impl Iterator<Item = AugData<D>>) -> anyhow::Result<()> {
-        Ok(self.delete::<AugDataSchema<D>>(aug_data.map(|d| d.id()))?)
+    fn remove_aug_data(&self, aug_data: Vec<AugData<D>>) -> Result<()> {
+        Ok(self.delete::<AugDataSchema<D>>(aug_data.into_iter().map(|d| d.id()))?)
     }
 
     fn remove_certified_aug_data(
         &self,
-        certified_aug_data: impl Iterator<Item = CertifiedAugData<D>>,
-    ) -> anyhow::Result<()> {
-        Ok(self.delete::<CertifiedAugDataSchema<D>>(certified_aug_data.map(|d| d.id()))?)
+        certified_aug_data: Vec<CertifiedAugData<D>>,
+    ) -> Result<()> {
+        Ok(self
+            .delete::<CertifiedAugDataSchema<D>>(certified_aug_data.into_iter().map(|d| d.id()))?)
     }
 }

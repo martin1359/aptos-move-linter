@@ -1,15 +1,17 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
+use super::types::FastShare;
 use crate::{
     network::TConsensusMsg,
     network_interface::ConsensusMsg,
     rand::rand_gen::types::{
-        AugData, AugDataSignature, AugmentedData, CertifiedAugData, CertifiedAugDataAck, Proof,
-        RandConfig, RandShare, Share, ShareAck,
+        AugData, AugDataSignature, CertifiedAugData, CertifiedAugDataAck, RandConfig, RandShare,
+        RequestShare, TAugmentedData, TShare,
     },
 };
-use anyhow::bail;
+use anyhow::{bail, ensure};
+use aptos_consensus_types::common::Author;
 use aptos_enum_conversion_derive::EnumConversion;
 use aptos_network::{protocols::network::RpcError, ProtocolId};
 use aptos_reliable_broadcast::RBMessage;
@@ -20,36 +22,56 @@ use serde::{Deserialize, Serialize};
 use std::cmp::min;
 
 #[derive(Clone, Serialize, Deserialize, EnumConversion)]
-pub enum RandMessage<S, P, D> {
+pub enum RandMessage<S, D> {
+    RequestShare(RequestShare),
     Share(RandShare<S>),
-    ShareAck(ShareAck<P>),
     AugData(AugData<D>),
     AugDataSignature(AugDataSignature),
     CertifiedAugData(CertifiedAugData<D>),
     CertifiedAugDataAck(CertifiedAugDataAck),
+    FastShare(FastShare<S>),
 }
 
-impl<S: Share, P: Proof<Share = S>, D: AugmentedData> RandMessage<S, P, D> {
+impl<S: TShare, D: TAugmentedData> RandMessage<S, D> {
     pub fn verify(
         &self,
-        _epoch_state: &EpochState,
-        _rand_config: &RandConfig,
+        epoch_state: &EpochState,
+        rand_config: &RandConfig,
+        fast_rand_config: &Option<RandConfig>,
+        sender: Author,
     ) -> anyhow::Result<()> {
-        Ok(())
+        ensure!(self.epoch() == epoch_state.epoch);
+        match self {
+            RandMessage::RequestShare(_) => Ok(()),
+            RandMessage::Share(share) => share.verify(rand_config),
+            RandMessage::AugData(aug_data) => {
+                aug_data.verify(rand_config, fast_rand_config, sender)
+            },
+            RandMessage::CertifiedAugData(certified_aug_data) => {
+                certified_aug_data.verify(&epoch_state.verifier)
+            },
+            RandMessage::FastShare(share) => {
+                share.share.verify(fast_rand_config.as_ref().ok_or_else(|| {
+                    anyhow::anyhow!("[RandMessage] rand config for fast path not found")
+                })?)
+            },
+            _ => bail!("[RandMessage] unexpected message type"),
+        }
     }
 }
 
-impl<S: Share, P: Proof<Share = S>, D: AugmentedData> RBMessage for RandMessage<S, P, D> {}
+impl<S: TShare, D: TAugmentedData> RBMessage for RandMessage<S, D> {}
 
-impl<S: Share, P: Proof<Share = S>, D: AugmentedData> TConsensusMsg for RandMessage<S, P, D> {
+impl<S: TShare, D: TAugmentedData> TConsensusMsg for RandMessage<S, D> {
     fn epoch(&self) -> u64 {
         match self {
+            RandMessage::RequestShare(request) => request.epoch(),
             RandMessage::Share(share) => share.epoch(),
-            RandMessage::ShareAck(ack) => ack.epoch(),
             RandMessage::AugData(aug_data) => aug_data.epoch(),
             RandMessage::AugDataSignature(signature) => signature.epoch(),
             RandMessage::CertifiedAugData(certified_aug_data) => certified_aug_data.epoch(),
             RandMessage::CertifiedAugDataAck(ack) => ack.epoch(),
+            RandMessage::FastShare(share) => share.share.epoch(),
         }
     }
 
@@ -76,8 +98,16 @@ pub struct RandGenMessage {
 }
 
 impl RandGenMessage {
+    pub fn new(epoch: u64, data: Vec<u8>) -> Self {
+        Self { epoch, data }
+    }
+
     pub fn data(&self) -> &[u8] {
         &self.data
+    }
+
+    pub fn epoch(&self) -> u64 {
+        self.epoch
     }
 }
 
@@ -90,8 +120,8 @@ impl core::fmt::Debug for RandGenMessage {
     }
 }
 
-pub struct RpcRequest<S, P, D> {
-    pub req: RandMessage<S, P, D>,
+pub struct RpcRequest<S, D> {
+    pub req: RandMessage<S, D>,
     pub protocol: ProtocolId,
     pub response_sender: oneshot::Sender<Result<Bytes, RpcError>>,
 }

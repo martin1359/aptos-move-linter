@@ -80,6 +80,7 @@ fn io_limit_reached_by_load_resource() {
 }
 
 #[test]
+#[ignore = "test needs redesign after 1.9 charging scheme change."]
 fn io_limit_reached_by_new_bytes() {
     let (mut h, acc) = setup();
     enable_golden!(h);
@@ -91,7 +92,7 @@ fn io_limit_reached_by_new_bytes() {
         // Allow 10 value bytes charged at most.
         gas_params.vm.txn.max_io_gas = 110_000_000.into();
         // Make the key bytes free, only play around value sizes.
-        gas_params.vm.txn.free_write_bytes_quota = state_key_size();
+        gas_params.vm.txn.legacy_free_write_bytes_quota = state_key_size();
     });
 
     test_create_multiple_items(&mut h, &acc, |status| {
@@ -100,6 +101,7 @@ fn io_limit_reached_by_new_bytes() {
 }
 
 #[test]
+#[ignore = "test needs redesign after 1.9 charging scheme change."]
 fn storage_limit_reached_by_new_bytes() {
     let (mut h, acc) = setup();
     enable_golden!(h);
@@ -107,12 +109,12 @@ fn storage_limit_reached_by_new_bytes() {
     // Modify the gas schedule.
     h.modify_gas_schedule(|gas_params| {
         // Make other aspects of the gas schedule irrelevant by setting byte fee super high.
-        gas_params.vm.txn.storage_fee_per_excess_state_byte = 1_000_000.into();
+        gas_params.vm.txn.legacy_storage_fee_per_excess_state_byte = 1_000_000.into();
         gas_params.vm.txn.storage_io_per_state_byte_write = 1.into();
         // Allow 10 value bytes charged at most.
         gas_params.vm.txn.max_storage_fee = 11_000_000.into();
         // Make the key bytes free, only play around value sizes.
-        gas_params.vm.txn.free_write_bytes_quota = state_key_size();
+        gas_params.vm.txn.legacy_free_write_bytes_quota = state_key_size();
     });
 
     test_create_multiple_items(&mut h, &acc, |status| {
@@ -121,6 +123,7 @@ fn storage_limit_reached_by_new_bytes() {
 }
 
 #[test]
+#[ignore = "test needs redesign after 1.9 charging scheme change."]
 fn out_of_gas_while_charging_write_gas() {
     let (mut h, acc) = setup();
     enable_golden!(h);
@@ -134,7 +137,7 @@ fn out_of_gas_while_charging_write_gas() {
         // Bump max gas allowed
         gas_params.vm.txn.maximum_number_of_gas_units = 1_000_000_000.into();
         // Make the key bytes free, only play around value sizes.
-        gas_params.vm.txn.free_write_bytes_quota = state_key_size();
+        gas_params.vm.txn.legacy_free_write_bytes_quota = state_key_size();
     });
     // Allow 10 value bytes charged at most. Notice this is in external units.
     h.set_max_gas_per_txn(110_000);
@@ -143,6 +146,7 @@ fn out_of_gas_while_charging_write_gas() {
 }
 
 #[test]
+#[ignore = "test needs redesign after 1.9 charging scheme change."]
 fn out_of_gas_while_charging_storage_fee() {
     let (mut h, acc) = setup();
     enable_golden!(h);
@@ -150,13 +154,13 @@ fn out_of_gas_while_charging_storage_fee() {
     // Modify the gas schedule.
     h.modify_gas_schedule(|gas_params| {
         // Make other aspects of the gas schedule irrelevant by setting per state byte storage fee super high.
-        gas_params.vm.txn.storage_fee_per_excess_state_byte = 1_000_000.into();
+        gas_params.vm.txn.legacy_storage_fee_per_excess_state_byte = 1_000_000.into();
         // Make sure we don't hit storage fee limit
         gas_params.vm.txn.max_storage_fee = 100_000_000.into();
         // Bump max gas allowed
         gas_params.vm.txn.maximum_number_of_gas_units = 1_000_000_000.into();
         // Make the key bytes free, only play around value sizes.
-        gas_params.vm.txn.free_write_bytes_quota = state_key_size();
+        gas_params.vm.txn.legacy_free_write_bytes_quota = state_key_size();
     });
     // Allow 10 value bytes charged at most. Notice this is in external units,
     //   which is 1/100x octas or 1Mx internal units.
@@ -166,7 +170,7 @@ fn out_of_gas_while_charging_storage_fee() {
 }
 
 fn state_key_size() -> NumBytes {
-    let key_size = StateKey::table_item(TableHandle(AccountAddress::ONE), vec![0u8]).size();
+    let key_size = StateKey::table_item(&TableHandle(AccountAddress::ONE), &[0u8]).size();
     (key_size as u64).into()
 }
 

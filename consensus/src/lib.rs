@@ -48,6 +48,7 @@ mod txn_notifier;
 pub mod util;
 
 mod block_preparer;
+pub mod consensus_observer;
 /// AptosBFT implementation
 pub mod consensus_provider;
 /// Required by the telemetry service
@@ -57,7 +58,6 @@ mod execution_pipeline;
 pub mod network_interface;
 mod payload_manager;
 mod qc_aggregator;
-mod sender_aware_shuffler;
 mod transaction_deduper;
 mod transaction_filter;
 mod transaction_shuffler;

@@ -72,6 +72,7 @@ impl GetterMethodFieldMatchLint {
                     );
                 }
             }
+            true
         });
     }
 
@@ -87,7 +88,8 @@ impl GetterMethodFieldMatchLint {
             return_exp.visit_pre_post(&mut |up, exp| {
                 if !up {
                     self.process_expression(exp, func_env, method_name, module_env, diags);
-                }
+                };
+                true
             });
         } else {
             self.report_non_call_return(func_env, method_name, module_env, diags);

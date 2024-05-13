@@ -13,8 +13,11 @@ use crate::{
     monitor,
     network_interface::{ConsensusMsg, ConsensusNetworkClient, RPC},
     pipeline::commit_reliable_broadcast::CommitMessage,
-    quorum_store::types::{Batch, BatchMsg, BatchRequest},
-    rand::rand_gen::RandGenMessage,
+    quorum_store::types::{Batch, BatchMsg, BatchRequest, BatchResponse},
+    rand::rand_gen::{
+        network_messages::{RandGenMessage, RandMessage},
+        types::{AugmentedData, FastShare, Share},
+    },
 };
 use anyhow::{anyhow, bail, ensure};
 use aptos_channels::{self, aptos_channel, message_queues::QueueStyle};
@@ -63,6 +66,29 @@ pub trait TConsensusMsg: Sized + Serialize + DeserializeOwned {
     fn into_network_message(self) -> ConsensusMsg;
 }
 
+#[derive(Debug)]
+pub struct RpcResponder {
+    pub protocol: ProtocolId,
+    pub response_sender: oneshot::Sender<Result<Bytes, RpcError>>,
+}
+
+impl RpcResponder {
+    pub fn respond<R>(self, response: R) -> anyhow::Result<()>
+    where
+        R: TConsensusMsg,
+    {
+        let rpc_response = self
+            .protocol
+            .to_bytes(&response.into_network_message())
+            .map(Bytes::from)
+            .map_err(RpcError::Error);
+
+        self.response_sender
+            .send(rpc_response)
+            .map_err(|_| anyhow::anyhow!("unable to respond to rpc"))
+    }
+}
+
 /// The block retrieval request is used internally for implementing RPC: the callback is executed
 /// for carrying the response
 #[derive(Debug)]
@@ -83,8 +109,7 @@ pub struct IncomingBatchRetrievalRequest {
 pub struct IncomingDAGRequest {
     pub req: DAGNetworkMessage,
     pub sender: Author,
-    pub protocol: ProtocolId,
-    pub response_sender: oneshot::Sender<Result<Bytes, RpcError>>,
+    pub responder: RpcResponder,
 }
 
 #[derive(Debug)]
@@ -97,6 +122,7 @@ pub struct IncomingCommitRequest {
 #[derive(Debug)]
 pub struct IncomingRandGenRequest {
     pub req: RandGenMessage,
+    pub sender: Author,
     pub protocol: ProtocolId,
     pub response_sender: oneshot::Sender<Result<Bytes, RpcError>>,
 }
@@ -108,6 +134,18 @@ pub enum IncomingRpcRequest {
     DAGRequest(IncomingDAGRequest),
     CommitRequest(IncomingCommitRequest),
     RandGenRequest(IncomingRandGenRequest),
+}
+
+impl IncomingRpcRequest {
+    pub fn epoch(&self) -> Option<u64> {
+        match self {
+            IncomingRpcRequest::BatchRetrieval(req) => Some(req.req.epoch()),
+            IncomingRpcRequest::DAGRequest(req) => Some(req.req.epoch()),
+            IncomingRpcRequest::RandGenRequest(req) => Some(req.req.epoch()),
+            IncomingRpcRequest::CommitRequest(req) => req.req.epoch(),
+            IncomingRpcRequest::BlockRetrieval(_) => None,
+        }
+    }
 }
 
 /// Just a convenience struct to keep all the network proxy receiving queues in one place.
@@ -137,7 +175,7 @@ pub trait QuorumStoreSender: Send + Clone {
         request: BatchRequest,
         recipient: Author,
         timeout: Duration,
-    ) -> anyhow::Result<Batch>;
+    ) -> anyhow::Result<BatchResponse>;
 
     async fn send_batch(&self, batch: Batch, recipients: Vec<Author>);
 
@@ -161,7 +199,7 @@ pub struct NetworkSender {
     consensus_network_client: ConsensusNetworkClient<NetworkClient<ConsensusMsg>>,
     // Self sender and self receivers provide a shortcut for sending the messages to itself.
     // (self sending is not supported by the networking API).
-    self_sender: aptos_channels::Sender<Event<ConsensusMsg>>,
+    self_sender: aptos_channels::UnboundedSender<Event<ConsensusMsg>>,
     validators: ValidatorVerifier,
     time_service: aptos_time_service::TimeService,
 }
@@ -170,7 +208,7 @@ impl NetworkSender {
     pub fn new(
         author: Author,
         consensus_network_client: ConsensusNetworkClient<NetworkClient<ConsensusMsg>>,
-        self_sender: aptos_channels::Sender<Event<ConsensusMsg>>,
+        self_sender: aptos_channels::UnboundedSender<Event<ConsensusMsg>>,
         validators: ValidatorVerifier,
     ) -> Self {
         NetworkSender {
@@ -232,6 +270,9 @@ impl NetworkSender {
         msg: ConsensusMsg,
         timeout_duration: Duration,
     ) -> anyhow::Result<ConsensusMsg> {
+        fail_point!("consensus::send::any", |_| {
+            Err(anyhow::anyhow!("Injected error in send_rpc"))
+        });
         counters::CONSENSUS_SENT_MSGS
             .with_label_values(&[msg.name()])
             .inc();
@@ -260,16 +301,37 @@ impl NetworkSender {
     /// The future is fulfilled as soon as the message is put into the mpsc channel to network
     /// internal (to provide back pressure), it does not indicate the message is delivered or sent
     /// out.
-    async fn broadcast(&mut self, msg: ConsensusMsg) {
+    async fn broadcast(&self, msg: ConsensusMsg) {
         fail_point!("consensus::send::any", |_| ());
         // Directly send the message to ourself without going through network.
         let self_msg = Event::Message(self.author, msg.clone());
-        if let Err(err) = self.self_sender.send(self_msg).await {
+        let mut self_sender = self.self_sender.clone();
+        if let Err(err) = self_sender.send(self_msg).await {
             error!("Error broadcasting to self: {:?}", err);
         }
 
         // Get the list of validators excluding our own account address. Note the
         // ordering is not important in this case.
+        let self_author = self.author;
+        let other_validators: Vec<_> = self
+            .validators
+            .get_ordered_account_addresses_iter()
+            .filter(|author| author != &self_author)
+            .collect();
+
+        counters::CONSENSUS_SENT_MSGS
+            .with_label_values(&[msg.name()])
+            .inc_by(other_validators.len() as u64);
+        // Broadcast message over direct-send to all other validators.
+        if let Err(err) = self
+            .consensus_network_client
+            .send_to_many(other_validators.into_iter(), msg)
+        {
+            warn!(error = ?err, "Error broadcasting message");
+        }
+    }
+
+    pub fn broadcast_without_self(&self, msg: ConsensusMsg) {
         let self_author = self.author;
         let other_validators: Vec<_> = self
             .validators
@@ -314,25 +376,25 @@ impl NetworkSender {
         }
     }
 
-    pub async fn broadcast_proposal(&mut self, proposal_msg: ProposalMsg) {
+    pub async fn broadcast_proposal(&self, proposal_msg: ProposalMsg) {
         fail_point!("consensus::send::broadcast_proposal", |_| ());
         let msg = ConsensusMsg::ProposalMsg(Box::new(proposal_msg));
         self.broadcast(msg).await
     }
 
-    pub async fn broadcast_sync_info(&mut self, sync_info_msg: SyncInfo) {
+    pub async fn broadcast_sync_info(&self, sync_info_msg: SyncInfo) {
         fail_point!("consensus::send::broadcast_sync_info", |_| ());
         let msg = ConsensusMsg::SyncInfo(Box::new(sync_info_msg));
         self.broadcast(msg).await
     }
 
-    pub async fn broadcast_timeout_vote(&mut self, timeout_vote_msg: VoteMsg) {
+    pub async fn broadcast_timeout_vote(&self, timeout_vote_msg: VoteMsg) {
         fail_point!("consensus::send::broadcast_timeout_vote", |_| ());
         let msg = ConsensusMsg::VoteMsg(Box::new(timeout_vote_msg));
         self.broadcast(msg).await
     }
 
-    pub async fn broadcast_epoch_change(&mut self, epoch_change_proof: EpochChangeProof) {
+    pub async fn broadcast_epoch_change(&self, epoch_change_proof: EpochChangeProof) {
         fail_point!("consensus::send::broadcast_epoch_change", |_| ());
         let msg = ConsensusMsg::EpochChangeProof(Box::new(epoch_change_proof));
         self.broadcast(msg).await
@@ -348,6 +410,18 @@ impl NetworkSender {
         self.send_rpc(recipient, msg, Duration::from_millis(500))
             .await
             .map(|_| ())
+    }
+
+    pub async fn broadcast_vote(&self, vote_msg: VoteMsg) {
+        fail_point!("consensus::send::vote", |_| ());
+        let msg = ConsensusMsg::VoteMsg(Box::new(vote_msg));
+        self.broadcast(msg).await
+    }
+
+    pub async fn broadcast_fast_share(&self, share: FastShare<Share>) {
+        fail_point!("consensus::send::broadcast_share", |_| ());
+        let msg = RandMessage::<Share, AugmentedData>::FastShare(share).into_network_message();
+        self.broadcast(msg).await
     }
 
     /// Sends the vote to the chosen recipients (typically that would be the recipients that
@@ -406,7 +480,7 @@ impl QuorumStoreSender for NetworkSender {
         request: BatchRequest,
         recipient: Author,
         timeout: Duration,
-    ) -> anyhow::Result<Batch> {
+    ) -> anyhow::Result<BatchResponse> {
         let request_digest = request.digest();
         let msg = ConsensusMsg::BatchRequestMsg(Box::new(request));
         let response = self
@@ -414,9 +488,17 @@ impl QuorumStoreSender for NetworkSender {
             .send_rpc(recipient, msg, timeout)
             .await?;
         match response {
+            // TODO: deprecated, remove after another release (likely v1.11)
             ConsensusMsg::BatchResponse(batch) => {
                 batch.verify_with_digest(request_digest)?;
-                Ok(*batch)
+                Ok(BatchResponse::Batch(*batch))
+            },
+            ConsensusMsg::BatchResponseV2(maybe_batch) => {
+                if let BatchResponse::Batch(batch) = maybe_batch.as_ref() {
+                    batch.verify_with_digest(request_digest)?;
+                }
+                // Note BatchResponse::NotFound(ledger_info) is verified later with a ValidatorVerifier
+                Ok(*maybe_batch)
             },
             _ => Err(anyhow!("Invalid batch response")),
         }
@@ -544,7 +626,7 @@ impl NetworkTask {
     /// Establishes the initial connections with the peers and returns the receivers.
     pub fn new(
         network_service_events: NetworkServiceEvents<ConsensusMsg>,
-        self_receiver: aptos_channels::Receiver<Event<ConsensusMsg>>,
+        self_receiver: aptos_channels::UnboundedReceiver<Event<ConsensusMsg>>,
     ) -> (NetworkTask, NetworkReceivers) {
         let (consensus_messages_tx, consensus_messages) = aptos_channel::new(
             QueueStyle::FIFO,
@@ -671,6 +753,23 @@ impl NetworkTask {
                             }
                             Self::push_msg(peer_id, consensus_msg, &self.consensus_messages_tx);
                         },
+                        // TODO: get rid of the rpc dummy value
+                        ConsensusMsg::RandGenMessage(req) => {
+                            let (tx, _rx) = oneshot::channel();
+                            let req_with_callback =
+                                IncomingRpcRequest::RandGenRequest(IncomingRandGenRequest {
+                                    req,
+                                    sender: peer_id,
+                                    protocol: RPC[0],
+                                    response_sender: tx,
+                                });
+                            if let Err(e) = self.rpc_tx.push(
+                                (peer_id, discriminant(&req_with_callback)),
+                                (peer_id, req_with_callback),
+                            ) {
+                                warn!(error = ?e, "aptos channel closed");
+                            };
+                        },
                         _ => {
                             warn!(remote_peer = peer_id, "Unexpected direct send msg");
                             continue;
@@ -712,8 +811,10 @@ impl NetworkTask {
                             IncomingRpcRequest::DAGRequest(IncomingDAGRequest {
                                 req,
                                 sender: peer_id,
-                                protocol,
-                                response_sender: callback,
+                                responder: RpcResponder {
+                                    protocol,
+                                    response_sender: callback,
+                                },
                             })
                         },
                         ConsensusMsg::CommitMessage(req) => {
@@ -726,6 +827,7 @@ impl NetworkTask {
                         ConsensusMsg::RandGenMessage(req) => {
                             IncomingRpcRequest::RandGenRequest(IncomingRandGenRequest {
                                 req,
+                                sender: peer_id,
                                 protocol,
                                 response_sender: callback,
                             })
@@ -741,9 +843,6 @@ impl NetworkTask {
                     {
                         warn!(error = ?e, "aptos channel closed");
                     };
-                },
-                _ => {
-                    // Ignore `NewPeer` and `LostPeer` events
                 },
             });
         }

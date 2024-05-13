@@ -85,6 +85,7 @@ impl ExpressionAnalysisVisitor for ComplexInlineFunctionVisitor {
                     if !up {
                         self.count_calls(exp);
                     }
+                    return true;
                 }),
             );
 

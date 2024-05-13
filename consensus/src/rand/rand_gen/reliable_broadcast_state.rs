@@ -1,90 +1,99 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::rand::rand_gen::{
-    network_messages::RandMessage,
-    types::{
-        AugData, AugDataSignature, AugmentedData, CertifiedAugData, CertifiedAugDataAck, Proof,
-        RandConfig, RandDecision, RandShare, Share, ShareAck,
+use crate::{
+    logging::{LogEvent, LogSchema},
+    rand::rand_gen::{
+        network_messages::RandMessage,
+        rand_store::RandStore,
+        types::{
+            AugData, AugDataSignature, CertifiedAugData, CertifiedAugDataAck, PathType, RandConfig,
+            RandShare, RequestShare, TAugmentedData, TShare,
+        },
     },
 };
 use anyhow::ensure;
 use aptos_consensus_types::common::Author;
+use aptos_infallible::Mutex;
+use aptos_logger::info;
 use aptos_reliable_broadcast::BroadcastStatus;
-use aptos_types::{aggregate_signature::PartialSignatures, epoch_state::EpochState};
+use aptos_types::{
+    aggregate_signature::PartialSignatures, epoch_state::EpochState, randomness::RandMetadata,
+};
 use std::{collections::HashSet, sync::Arc};
-use tokio::sync::mpsc::UnboundedSender;
 
 pub struct AugDataCertBuilder<D> {
     epoch_state: Arc<EpochState>,
     aug_data: AugData<D>,
-    partial_signatures: PartialSignatures,
+    partial_signatures: Mutex<PartialSignatures>,
 }
 
 impl<D> AugDataCertBuilder<D> {
-    pub fn new(aug_data: AugData<D>, epoch_state: Arc<EpochState>) -> Self {
-        Self {
+    pub fn new(aug_data: AugData<D>, epoch_state: Arc<EpochState>) -> Arc<Self> {
+        Arc::new(Self {
             epoch_state,
             aug_data,
-            partial_signatures: PartialSignatures::empty(),
-        }
+            partial_signatures: Mutex::new(PartialSignatures::empty()),
+        })
     }
 }
 
-impl<S: Share, P: Proof<Share = S>, D: AugmentedData>
-    BroadcastStatus<RandMessage<S, P, D>, RandMessage<S, P, D>> for AugDataCertBuilder<D>
+impl<S: TShare, D: TAugmentedData> BroadcastStatus<RandMessage<S, D>, RandMessage<S, D>>
+    for Arc<AugDataCertBuilder<D>>
 {
-    type Ack = AugDataSignature;
     type Aggregated = CertifiedAugData<D>;
     type Message = AugData<D>;
+    type Response = AugDataSignature;
 
-    fn add(&mut self, peer: Author, ack: Self::Ack) -> anyhow::Result<Option<Self::Aggregated>> {
+    fn add(&self, peer: Author, ack: Self::Response) -> anyhow::Result<Option<Self::Aggregated>> {
         ack.verify(peer, &self.epoch_state.verifier, &self.aug_data)?;
-        self.partial_signatures
-            .add_signature(peer, ack.into_signature());
-        Ok(self
+        let mut parital_signatures_guard = self.partial_signatures.lock();
+        parital_signatures_guard.add_signature(peer, ack.into_signature());
+        let qc_aug_data = self
             .epoch_state
             .verifier
-            .check_voting_power(self.partial_signatures.signatures().keys(), true)
+            .check_voting_power(parital_signatures_guard.signatures().keys(), true)
             .ok()
             .map(|_| {
                 let aggregated_signature = self
                     .epoch_state
                     .verifier
-                    .aggregate_signatures(&self.partial_signatures)
+                    .aggregate_signatures(&parital_signatures_guard)
                     .expect("Signature aggregation should succeed");
                 CertifiedAugData::new(self.aug_data.clone(), aggregated_signature)
-            }))
+            });
+        Ok(qc_aug_data)
     }
 }
 
 pub struct CertifiedAugDataAckState {
-    validators: HashSet<Author>,
+    validators: Mutex<HashSet<Author>>,
 }
 
 impl CertifiedAugDataAckState {
     pub fn new(validators: impl Iterator<Item = Author>) -> Self {
         Self {
-            validators: validators.collect(),
+            validators: Mutex::new(validators.collect()),
         }
     }
 }
 
-impl<S: Share, P: Proof<Share = S>, D: AugmentedData>
-    BroadcastStatus<RandMessage<S, P, D>, RandMessage<S, P, D>> for CertifiedAugDataAckState
+impl<S: TShare, D: TAugmentedData> BroadcastStatus<RandMessage<S, D>, RandMessage<S, D>>
+    for Arc<CertifiedAugDataAckState>
 {
-    type Ack = CertifiedAugDataAck;
     type Aggregated = ();
     type Message = CertifiedAugData<D>;
+    type Response = CertifiedAugDataAck;
 
-    fn add(&mut self, peer: Author, _ack: Self::Ack) -> anyhow::Result<Option<Self::Aggregated>> {
+    fn add(&self, peer: Author, _ack: Self::Response) -> anyhow::Result<Option<Self::Aggregated>> {
+        let mut validators_guard = self.validators.lock();
         ensure!(
-            self.validators.remove(&peer),
+            validators_guard.remove(&peer),
             "[RandMessage] Unknown author: {}",
             peer
         );
         // If receive from all validators, stop the reliable broadcast
-        if self.validators.is_empty() {
+        if validators_guard.is_empty() {
             Ok(Some(()))
         } else {
             Ok(None)
@@ -92,37 +101,52 @@ impl<S: Share, P: Proof<Share = S>, D: AugmentedData>
     }
 }
 
-pub struct ShareAckState<P> {
-    validators: HashSet<Author>,
+pub struct ShareAggregateState<S> {
+    rand_metadata: RandMetadata,
+    rand_store: Arc<Mutex<RandStore<S>>>,
     rand_config: RandConfig,
-    decision_tx: UnboundedSender<RandDecision<P>>,
 }
 
-impl<S: Share, P: Proof<Share = S>, D: AugmentedData>
-    BroadcastStatus<RandMessage<S, P, D>, RandMessage<S, P, D>> for ShareAckState<P>
-{
-    type Ack = ShareAck<P>;
-    type Aggregated = ();
-    type Message = RandShare<S>;
+impl<S> ShareAggregateState<S> {
+    pub fn new(
+        rand_store: Arc<Mutex<RandStore<S>>>,
+        rand_metadata: RandMetadata,
+        rand_config: RandConfig,
+    ) -> Self {
+        Self {
+            rand_store,
+            rand_metadata,
+            rand_config,
+        }
+    }
+}
 
-    fn add(&mut self, peer: Author, ack: Self::Ack) -> anyhow::Result<Option<Self::Aggregated>> {
+impl<S: TShare, D: TAugmentedData> BroadcastStatus<RandMessage<S, D>, RandMessage<S, D>>
+    for Arc<ShareAggregateState<S>>
+{
+    type Aggregated = ();
+    type Message = RequestShare;
+    type Response = RandShare<S>;
+
+    fn add(&self, peer: Author, share: Self::Response) -> anyhow::Result<Option<()>> {
+        ensure!(share.author() == &peer, "Author does not match");
         ensure!(
-            self.validators.remove(&peer),
-            "[RandMessage] Unknown author: {}",
-            peer
+            share.metadata() == &self.rand_metadata,
+            "Metadata does not match: local {:?}, received {:?}",
+            self.rand_metadata,
+            share.metadata()
         );
-        // If receive a decision, verify it and send it to the randomness manager and stop the reliable broadcast
-        if let Some(decision) = ack.into_maybe_decision() {
-            if decision.verify(&self.rand_config).is_ok() {
-                let _ = self.decision_tx.send(decision);
-                return Ok(Some(()));
-            }
-        }
-        // If receive from all validators, stop the reliable broadcast
-        if self.validators.is_empty() {
-            Ok(Some(()))
+        share.verify(&self.rand_config)?;
+        info!(LogSchema::new(LogEvent::ReceiveReactiveRandShare)
+            .epoch(share.epoch())
+            .round(share.metadata().round)
+            .remote_peer(*share.author()));
+        let mut store = self.rand_store.lock();
+        let aggregated = if store.add_share(share, PathType::Slow)? {
+            Some(())
         } else {
-            Ok(None)
-        }
+            None
+        };
+        Ok(aggregated)
     }
 }

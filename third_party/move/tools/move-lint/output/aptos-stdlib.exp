@@ -1,0 +1,314 @@
+warning: Imports in module "any" are not sorted alphabetically.
+  ┌─ ./sources/any.move:2:20
+  │  
+2 │       use aptos_std::type_info;
+  │ ╭────────────────────^
+3 │ │     use aptos_std::from_bcs::from_bytes;
+4 │ │     use std::bcs::to_bytes;
+5 │ │     use std::error;
+6 │ │     use std::string::String;
+  │ ╰───────────────────────────^ Imports in module "any" are not sorted alphabetically.
+
+warning: Mutable parameter `table` is never modified in function `add_box`.
+    ┌─ ./sources/table.move:139:5
+    │
+139 │     native fun add_box<K: copy + drop, V, B>(table: &mut Table<K, V>, key: K, val: Box<V>);
+    │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Mutable parameter `table` is never modified in function `add_box`.
+
+warning: Mutable parameter `table` is never modified in function `borrow_box_mut`.
+    ┌─ ./sources/table.move:143:5
+    │
+143 │     native fun borrow_box_mut<K: copy + drop, V, B>(table: &mut Table<K, V>, key: K): &mut Box<V>;
+    │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Mutable parameter `table` is never modified in function `borrow_box_mut`.
+
+warning: Mutable parameter `table` is never modified in function `remove_box`.
+    ┌─ ./sources/table.move:147:5
+    │
+147 │     native fun remove_box<K: copy + drop, V, B>(table: &mut Table<K, V>, key: K): Box<V>;
+    │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Mutable parameter `table` is never modified in function `remove_box`.
+
+warning: Imports in module "big_vector" are not sorted alphabetically.
+  ┌─ ./sources/data_structures/big_vector.move:2:14
+  │  
+2 │       use std::error;
+  │ ╭──────────────^
+3 │ │     use std::vector;
+4 │ │     use aptos_std::table_with_length::{Self, TableWithLength};
+  │ ╰────────────────────────────────────────────────────────────^ Imports in module "big_vector" are not sorted alphabetically.
+
+warning: Imports in module "copyable_any" are not sorted alphabetically.
+  ┌─ ./sources/copyable_any.move:2:20
+  │  
+2 │       use aptos_std::type_info;
+  │ ╭────────────────────^
+3 │ │     use aptos_std::from_bcs::from_bytes;
+4 │ │     use std::bcs;
+5 │ │     use std::error;
+6 │ │     use std::string::String;
+  │ ╰───────────────────────────^ Imports in module "copyable_any" are not sorted alphabetically.
+
+warning: Imports in module "crypto_algebra" are not sorted alphabetically.
+   ┌─ ./sources/cryptography/crypto_algebra.move:39:14
+   │  
+39 │       use std::option::{Option, some, none};
+   │ ╭──────────────^
+40 │ │     use std::features;
+   │ ╰─────────────────────^ Imports in module "crypto_algebra" are not sorted alphabetically.
+
+warning: Imports in module "ed25519" are not sorted alphabetically.
+  ┌─ ./sources/cryptography/ed25519.move:6:14
+  │  
+6 │       use std::bcs;
+  │ ╭──────────────^
+7 │ │     use aptos_std::type_info::{Self, TypeInfo};
+8 │ │     use std::option::{Self, Option};
+  │ ╰──────────────────────────────────^ Imports in module "ed25519" are not sorted alphabetically.
+
+warning: Getter method `sqrt` does not return required field.
+    ┌─ ./sources/math128.move:134:36
+    │  
+134 │       public fun sqrt(x: u128): u128 {
+    │ ╭────────────────────────────────────^
+135 │ │         if (x == 0) return 0;
+136 │ │         // Note the plus 1 in the expression. Let n = floor_lg2(x) we have x in [2^n, 2^{n+1}) and thus the answer in
+137 │ │         // the half-open interval [2^(n/2), 2^{(n+1)/2}). For even n we can write this as [2^(n/2), sqrt(2) 2^{n/2})
+    · │
+150 │ │         min(res, x / res)
+151 │ │     }
+    │ ╰─────^ Getter method `sqrt` does not return required field.
+
+warning: Getter method `sqrt` does not return required field.
+    ┌─ ./sources/math64.move:109:34
+    │  
+109 │       public fun sqrt(x: u64): u64 {
+    │ ╭──────────────────────────────────^
+110 │ │         if (x == 0) return 0;
+111 │ │         // Note the plus 1 in the expression. Let n = floor_lg2(x) we have x in [2^n, 2^(n+1)> and thus the answer in
+112 │ │         // the half-open interval [2^(n/2), 2^((n+1)/2)>. For even n we can write this as [2^(n/2), sqrt(2) 2^(n/2)>
+    · │
+124 │ │         min(res, x / res)
+125 │ │     }
+    │ ╰─────^ Getter method `sqrt` does not return required field.
+
+warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+   ┌─ ./sources/math64.move:44:10
+   │
+44 │         (((a as u128) * (b as u128) / (c as u128)) as u64)
+   │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+
+warning: Simplify comparison by using >= instead.
+    ┌─ ./sources/cryptography/multi_ed25519.move:294:20
+    │
+294 │         } else if (threshold_byte == 0 || threshold_byte > (num_of_keys as u8)) {
+    │                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Simplify comparison by using >= instead.
+
+warning: Imports in module "multi_ed25519" are not sorted alphabetically.
+   ┌─ ./sources/cryptography/multi_ed25519.move:5:14
+   │  
+ 5 │       use std::bcs;
+   │ ╭──────────────^
+ 6 │ │     use std::error;
+ 7 │ │     use std::features;
+ 8 │ │     use std::option::{Self, Option};
+ 9 │ │     use std::vector;
+10 │ │     use aptos_std::ed25519;
+   │ ╰──────────────────────────^ Imports in module "multi_ed25519" are not sorted alphabetically.
+
+warning: Imports in module "pool_u64" are not sorted alphabetically.
+   ┌─ ./sources/pool_u64.move:17:20
+   │  
+17 │       use aptos_std::simple_map::{Self, SimpleMap};
+   │ ╭────────────────────^
+18 │ │     use std::error;
+19 │ │     use std::vector;
+   │ ╰───────────────────^ Imports in module "pool_u64" are not sorted alphabetically.
+
+warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+    ┌─ ./sources/pool_u64.move:262:22
+    │
+262 │         let result = (to_u128(x) * to_u128(y)) / to_u128(z);
+    │                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+
+warning: Imports in module "pool_u64_unbound" are not sorted alphabetically.
+   ┌─ ./sources/pool_u64_unbound.move:17:20
+   │  
+17 │       use aptos_std::table_with_length::{Self as table, TableWithLength as Table};
+   │ ╭────────────────────^
+18 │ │     use std::error;
+   │ ╰──────────────────^ Imports in module "pool_u64_unbound" are not sorted alphabetically.
+
+warning: Imports in module "ristretto255_pedersen" are not sorted alphabetically.
+  ┌─ ./sources/cryptography/ristretto255_pedersen.move:7:20
+  │  
+7 │       use aptos_std::ristretto255::{Self, RistrettoPoint, Scalar, CompressedRistretto, point_compress};
+  │ ╭────────────────────^
+8 │ │     use std::option::Option;
+  │ ╰───────────────────────────^ Imports in module "ristretto255_pedersen" are not sorted alphabetically.
+
+warning: Imports in module "ristretto255_bulletproofs" are not sorted alphabetically.
+   ┌─ ./sources/cryptography/ristretto255_bulletproofs.move:7:14
+   │  
+ 7 │       use std::error;
+   │ ╭──────────────^
+ 8 │ │     use std::features;
+ 9 │ │     use aptos_std::ristretto255_pedersen as pedersen;
+10 │ │     use aptos_std::ristretto255::{Self, RistrettoPoint};
+   │ ╰──────────────────────────────────────────────────────^ Imports in module "ristretto255_bulletproofs" are not sorted alphabetically.
+
+warning: Imports in module "ristretto255_elgamal" are not sorted alphabetically.
+   ┌─ ./sources/cryptography/ristretto255_elgamal.move:12:20
+   │  
+12 │       use aptos_std::ristretto255::{Self, RistrettoPoint, Scalar, CompressedRistretto, point_compress};
+   │ ╭────────────────────^
+13 │ │     use std::option::Option;
+14 │ │     use std::vector;
+   │ ╰───────────────────^ Imports in module "ristretto255_elgamal" are not sorted alphabetically.
+
+warning: Block nesting level exceeds allowed limit of 5. Consider refactoring your code.
+    ┌─ ./sources/data_structures/smart_table.move:242:13
+    │  
+242 │ ╭             for (vector_index in starting_vector_index..bucket_length) {
+243 │ │                 vector::push_back(&mut keys, vector::borrow(bucket_ref, vector_index).key);
+244 │ │                 num_keys_to_get = num_keys_to_get - 1;
+245 │ │                 if (num_keys_to_get == 0) {
+    · │
+257 │ │                 };
+258 │ │             };
+    │ ╰─────────────^ Block nesting level exceeds allowed limit of 5. Consider refactoring your code.
+
+warning: Block nesting level exceeds allowed limit of 5. Consider refactoring your code.
+    ┌─ ./sources/data_structures/smart_table.move:242:13
+    │  
+242 │ ╭             for (vector_index in starting_vector_index..bucket_length) {
+243 │ │                 vector::push_back(&mut keys, vector::borrow(bucket_ref, vector_index).key);
+244 │ │                 num_keys_to_get = num_keys_to_get - 1;
+245 │ │                 if (num_keys_to_get == 0) {
+    · │
+257 │ │                 };
+258 │ │             };
+    │ ╰─────────────^ Block nesting level exceeds allowed limit of 5. Consider refactoring your code.
+
+warning: Simplify comparison by using <= instead.
+    ┌─ ./sources/data_structures/smart_table.move:233:13
+    │
+233 │             starting_vector_index < bucket_length || starting_vector_index == 0,
+    │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Simplify comparison by using <= instead.
+
+warning: Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+    ┌─ ./sources/data_structures/smart_table.move:242:13
+    │  
+242 │ ╭             for (vector_index in starting_vector_index..bucket_length) {
+243 │ │                 vector::push_back(&mut keys, vector::borrow(bucket_ref, vector_index).key);
+244 │ │                 num_keys_to_get = num_keys_to_get - 1;
+245 │ │                 if (num_keys_to_get == 0) {
+    · │
+257 │ │                 };
+258 │ │             };
+    │ ╰─────────────^ Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+
+warning: Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+    ┌─ ./sources/data_structures/smart_table.move:242:13
+    │  
+242 │ ╭             for (vector_index in starting_vector_index..bucket_length) {
+243 │ │                 vector::push_back(&mut keys, vector::borrow(bucket_ref, vector_index).key);
+244 │ │                 num_keys_to_get = num_keys_to_get - 1;
+245 │ │                 if (num_keys_to_get == 0) {
+    · │
+257 │ │                 };
+258 │ │             };
+    │ ╰─────────────^ Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+
+warning: Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+    ┌─ ./sources/data_structures/smart_table.move:245:21
+    │
+245 │                 if (num_keys_to_get == 0) {
+    │                     ^^^^^^^^^^^^^^^^^^^^ Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+
+warning: Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+    ┌─ ./../move-stdlib/sources/vector.move:491:16
+    │
+491 │         while (i < len) {
+    │                ^^^^^^^ Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+
+warning: Imports in module "smart_table" are not sorted alphabetically.
+   ┌─ ./sources/data_structures/smart_table.move:8:14
+   │  
+ 8 │       use std::error;
+   │ ╭──────────────^
+ 9 │ │     use std::vector;
+10 │ │     use aptos_std::aptos_hash::sip_hash_from_value;
+11 │ │     use aptos_std::table_with_length::{Self, TableWithLength};
+   · │
+15 │ │     use aptos_std::simple_map;
+16 │ │     use std::option::{Self, Option};
+   │ ╰──────────────────────────────────^ Imports in module "smart_table" are not sorted alphabetically.
+
+warning: Mutable parameter `table` is never modified in function `borrow_buckets_mut`.
+    ┌─ ./sources/data_structures/smart_table.move:496:5
+    │  
+496 │ ╭     public fun borrow_buckets_mut<K, V>(table: &mut SmartTable<K, V>): &mut TableWithLength<u64, vector<Entry<K, V>>> {
+497 │ │         &mut table.buckets
+498 │ │     }
+    │ ╰─────^ Mutable parameter `table` is never modified in function `borrow_buckets_mut`.
+
+warning: Mutable parameter `e` is never modified in function `borrow_kv_mut`.
+    ┌─ ./sources/data_structures/smart_table.move:484:5
+    │  
+484 │ ╭     public fun borrow_kv_mut<K, V>(e: &mut Entry<K, V>): (&mut K, &mut V) {
+485 │ │         (&mut e.key, &mut e.value)
+486 │ │     }
+    │ ╰─────^ Mutable parameter `e` is never modified in function `borrow_kv_mut`.
+
+warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+    ┌─ ./sources/data_structures/smart_table.move:403:9
+    │
+403 │         table.size * 100 / table.num_buckets / table.target_bucket_size
+    │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+
+warning: Unnecessary 'while(true)' detected. Consider using 'loop' instead.
+    ┌─ ./sources/data_structures/smart_table.move:239:9
+    │  
+239 │ ╭         for (bucket_index in starting_bucket_index..num_buckets) {
+240 │ │             bucket_ref = table_with_length::borrow(buckets_ref, bucket_index);
+241 │ │             bucket_length = vector::length(bucket_ref);
+242 │ │             for (vector_index in starting_vector_index..bucket_length) {
+    · │
+259 │ │             starting_vector_index = 0; // Start parsing the next bucket at vector index 0.
+260 │ │         };
+    │ ╰─────────^ Unnecessary 'while(true)' detected. Consider using 'loop' instead.
+
+warning: Unnecessary 'while(true)' detected. Consider using 'loop' instead.
+    ┌─ ./sources/data_structures/smart_table.move:242:13
+    │  
+242 │ ╭             for (vector_index in starting_vector_index..bucket_length) {
+243 │ │                 vector::push_back(&mut keys, vector::borrow(bucket_ref, vector_index).key);
+244 │ │                 num_keys_to_get = num_keys_to_get - 1;
+245 │ │                 if (num_keys_to_get == 0) {
+    · │
+257 │ │                 };
+258 │ │             };
+    │ ╰─────────────^ Unnecessary 'while(true)' detected. Consider using 'loop' instead.
+
+warning: Use `i` directly instead of comparing it to true.
+    ┌─ ./sources/data_structures/smart_vector.move:316:13
+    │
+316 │             (true, i)
+    │             ^^^^^^^^^ Use `i` directly instead of comparing it to true.
+
+warning: Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+    ┌─ ./sources/data_structures/smart_vector.move:241:21
+    │
+241 │                 if (big_vector::is_empty(&big_vec)) {
+    │                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
+
+warning: Imports in module "smart_vector" are not sorted alphabetically.
+  ┌─ ./sources/data_structures/smart_vector.move:2:14
+  │  
+2 │       use std::error;
+  │ ╭──────────────^
+3 │ │     use std::vector;
+4 │ │     use aptos_std::big_vector::{Self, BigVector};
+5 │ │     use aptos_std::math64::max;
+6 │ │     use aptos_std::type_info::size_of_val;
+7 │ │     use std::option::{Self, Option};
+  │ ╰──────────────────────────────────^ Imports in module "smart_vector" are not sorted alphabetically.

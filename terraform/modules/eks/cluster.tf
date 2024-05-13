@@ -218,11 +218,17 @@ data "aws_iam_policy_document" "cluster-autoscaler" {
   statement {
     sid = "DescribeAutoscaling"
     actions = [
-      "autoscaling:DescribeAutoScalingInstances",
+      "autoscaling:DescribeLaunchConfigurations",
       "autoscaling:DescribeAutoScalingGroups",
-      "ec2:DescribeLaunchTemplateVersions",
+      "autoscaling:DescribeAutoScalingInstances",
+      "autoscaling:DescribeLaunchConfigurations",
+      "autoscaling:DescribeScalingActivities",
       "autoscaling:DescribeTags",
-      "autoscaling:DescribeLaunchConfigurations"
+      "ec2:DescribeInstanceTypes",
+      "ec2:DescribeLaunchTemplateVersions",
+      "ec2:DescribeImages",
+      "ec2:GetInstanceTypesFromInstanceRequirements",
+      "eks:DescribeNodegroup"
     ]
     resources = ["*"]
   }

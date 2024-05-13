@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::Result;
-use move_model::model::GlobalEnv;
+use move_model::{
+    metadata::{CompilerVersion, LanguageVersion},
+    model::GlobalEnv,
+};
 use move_package::{source_package::layout::SourcePackageLayout, BuildConfig, ModelConfig};
 use std::path::{Path, PathBuf};
 
@@ -59,6 +62,8 @@ fn compile_ast(path: &Path) -> Result<(CompiledModel, CompiledModel)> {
             ModelConfig {
                 target_filter: None,
                 all_files_as_targets: false,
+                compiler_version: CompilerVersion::V2_0,
+                language_version: LanguageVersion::V2_0,
             },
         )
         .unwrap_or_else(|e| panic!("Unable to build move model: `{}`", e));
@@ -68,6 +73,8 @@ fn compile_ast(path: &Path) -> Result<(CompiledModel, CompiledModel)> {
             ModelConfig {
                 target_filter: None,
                 all_files_as_targets: false,
+                compiler_version: CompilerVersion::V2_0,
+                language_version: LanguageVersion::V2_0,
             },
         )
         .unwrap_or_else(|e| panic!("Unable to build move model: `{}`", e));

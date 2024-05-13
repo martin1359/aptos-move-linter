@@ -19,7 +19,6 @@ use aptos_api_types::{
     MoveModuleId, MoveResource, MoveStructTag, StateKeyWrapper, U64,
 };
 use aptos_types::{
-    access_path::AccessPath,
     account_config::{AccountResource, ObjectGroupResource},
     event::{EventHandle, EventKey},
     state_store::state_key::StateKey,
@@ -258,16 +257,14 @@ impl Account {
     }
 
     pub fn get_account_resource(&self) -> Result<Vec<u8>, BasicErrorWith404> {
-        let state_key = StateKey::access_path(
-            AccessPath::resource_access_path(self.address.into(), AccountResource::struct_tag())
-                .map_err(|e| {
-                    BasicErrorWith404::internal_with_code(
-                        e,
-                        AptosErrorCode::InternalError,
-                        &self.latest_ledger_info,
-                    )
-                })?,
-        );
+        let state_key =
+            StateKey::resource_typed::<AccountResource>(self.address.inner()).map_err(|e| {
+                BasicErrorWith404::internal_with_code(
+                    e,
+                    AptosErrorCode::InternalError,
+                    &self.latest_ledger_info,
+                )
+            })?;
 
         let state_value = self.context.get_state_value_poem(
             &state_key,
@@ -287,10 +284,8 @@ impl Account {
             return Ok(());
         }
 
-        let state_key = StateKey::access_path(AccessPath::resource_group_access_path(
-            self.address.into(),
-            ObjectGroupResource::struct_tag(),
-        ));
+        let state_key =
+            StateKey::resource_group(&self.address.into(), &ObjectGroupResource::struct_tag());
 
         let state_value = self.context.get_state_value_poem(
             &state_key,
@@ -351,7 +346,10 @@ impl Account {
                     .latest_state_view_poem(&self.latest_ledger_info)?;
                 let converted_resources = state_view
                     .as_move_resolver()
-                    .as_converter(self.context.db.clone())
+                    .as_converter(
+                        self.context.db.clone(),
+                        self.context.table_info_reader.clone(),
+                    )
                     .try_into_resources(resources.iter().map(|(k, v)| (k.clone(), v.as_slice())))
                     .context("Failed to build move resource response from data in DB")
                     .map_err(|err| {
@@ -545,7 +543,10 @@ impl Account {
             })?;
 
         resolver
-            .as_converter(self.context.db.clone())
+            .as_converter(
+                self.context.db.clone(),
+                self.context.table_info_reader.clone(),
+            )
             .move_struct_fields(resource_type, &bytes)
             .context("Failed to convert move structs from storage")
             .map_err(|err| {

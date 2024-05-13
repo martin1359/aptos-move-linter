@@ -66,7 +66,8 @@ impl UnmodifiedMutableArgumentLint {
                 &mut (|up: bool, exp: &ExpData| {
                     if !up && !is_modified {
                         self.update_usage_status(exp, &param_name, func_env, &mut is_modified);
-                    }
+                    };
+                    true
                 }),
             );
 

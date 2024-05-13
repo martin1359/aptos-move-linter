@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //! This module provides reusable helpers in tests.
+use super::gather_state_updates_until_last_checkpoint;
 #[cfg(test)]
 use crate::state_store::StateStore;
 #[cfg(test)]
@@ -11,17 +12,19 @@ use crate::{
     schema::{jellyfish_merkle_node::JellyfishMerkleNodeSchema, state_value::StateValueSchema},
     AptosDB,
 };
-use anyhow::Result;
 use aptos_crypto::hash::CryptoHash;
 #[cfg(test)]
 use aptos_crypto::HashValue;
 use aptos_executor_types::ProofReader;
 use aptos_jellyfish_merkle::node_type::{Node, NodeKey};
+#[cfg(test)]
 use aptos_schemadb::SchemaBatch;
-use aptos_storage_interface::{state_delta::StateDelta, DbReader, DbWriter, Order};
+use aptos_storage_interface::{state_delta::StateDelta, DbReader, DbWriter, Order, Result};
 use aptos_temppath::TempPath;
 #[cfg(test)]
 use aptos_types::state_store::state_storage_usage::StateStorageUsage;
+#[cfg(test)]
+use aptos_types::transaction::TransactionAuxiliaryData;
 use aptos_types::{
     account_address::AccountAddress,
     contract_event::ContractEvent,
@@ -29,16 +32,12 @@ use aptos_types::{
     ledger_info::{generate_ledger_info_with_sig, LedgerInfo, LedgerInfoWithSignatures},
     proof::accumulator::{InMemoryEventAccumulator, InMemoryTransactionAccumulator},
     proptest_types::{AccountInfoUniverse, BlockGen},
-    state_store::{
-        create_empty_sharded_state_updates, state_key::StateKey, state_value::StateValue,
-        ShardedStateUpdates,
-    },
+    state_store::{state_key::StateKey, state_value::StateValue},
     transaction::{Transaction, TransactionInfo, TransactionToCommit, Version},
 };
 #[cfg(test)]
 use arr_macro::arr;
 use proptest::{collection::vec, prelude::*, sample::Index};
-use rayon::prelude::*;
 use std::{collections::HashMap, fmt::Debug};
 
 prop_compose! {
@@ -399,7 +398,7 @@ pub fn test_save_blocks_impl(
         }
 
         assert_eq!(
-            db.ledger_store.get_latest_ledger_info().unwrap(),
+            db.ledger_db.metadata_db().get_latest_ledger_info().unwrap(),
             *ledger_info_with_sigs
         );
         verify_committed_transactions(
@@ -466,7 +465,8 @@ fn verify_snapshots(
         let end = (snapshot_version - start_version) as usize;
         assert!(txns_to_commit[end].is_state_checkpoint());
         let expected_root_hash = db
-            .ledger_store
+            .ledger_db
+            .transaction_info_db()
             .get_transaction_info(snapshot_version)
             .unwrap()
             .state_checkpoint_hash()
@@ -807,7 +807,11 @@ pub fn verify_committed_transactions(
     let mut cur_ver = first_version;
     let mut updates = HashMap::new();
     for txn_to_commit in txns_to_commit {
-        let txn_info = db.ledger_store.get_transaction_info(cur_ver).unwrap();
+        let txn_info = db
+            .ledger_db
+            .transaction_info_db()
+            .get_transaction_info(cur_ver)
+            .unwrap();
 
         // Verify transaction hash.
         assert_eq!(
@@ -906,12 +910,36 @@ pub fn verify_committed_transactions(
     verify_account_txns(db, group_txns_by_account(txns_to_commit), ledger_info);
 }
 
-pub fn put_transaction_info(db: &AptosDB, version: Version, txn_info: &TransactionInfo) {
-    let batch = SchemaBatch::new();
-    db.ledger_store
-        .put_transaction_infos(version, &[txn_info.clone()], &batch, &batch)
+#[cfg(test)]
+pub(crate) fn put_transaction_infos(
+    db: &AptosDB,
+    version: Version,
+    txn_infos: &[TransactionInfo],
+) -> HashValue {
+    let txns_to_commit: Vec<_> = txn_infos
+        .iter()
+        .cloned()
+        .map(TransactionToCommit::dummy_with_transaction_info)
+        .collect();
+    db.commit_transaction_infos(&txns_to_commit, version)
         .unwrap();
-    db.ledger_db.transaction_db().write_schemas(batch).unwrap();
+    db.commit_transaction_accumulator(&txns_to_commit, version)
+        .unwrap()
+}
+
+#[cfg(test)]
+pub(crate) fn put_transaction_auxiliary_data(
+    db: &AptosDB,
+    version: Version,
+    auxiliary_data: &[TransactionAuxiliaryData],
+) {
+    let txns_to_commit: Vec<_> = auxiliary_data
+        .iter()
+        .cloned()
+        .map(TransactionToCommit::dummy_with_transaction_auxiliary_data)
+        .collect();
+    db.commit_transaction_auxiliary_data(&txns_to_commit, version)
+        .unwrap();
 }
 
 pub fn put_as_state_root(db: &AptosDB, version: Version, key: StateKey, value: StateValue) {
@@ -1033,62 +1061,4 @@ pub fn test_sync_transactions_impl(
             .flat_map(|(txns_to_commit, _)| txns_to_commit.iter())
             .collect(),
     );
-}
-
-pub fn gather_state_updates_until_last_checkpoint(
-    first_version: Version,
-    latest_in_memory_state: &StateDelta,
-    txns_to_commit: &[TransactionToCommit],
-) -> Option<ShardedStateUpdates> {
-    if let Some(latest_checkpoint_version) = latest_in_memory_state.base_version {
-        if latest_checkpoint_version >= first_version {
-            let idx = (latest_checkpoint_version - first_version) as usize;
-            assert!(
-                    txns_to_commit[idx].is_state_checkpoint(),
-                    "The new latest snapshot version passed in {:?} does not match with the last checkpoint version in txns_to_commit {:?}",
-                    latest_checkpoint_version,
-                    first_version + idx as u64
-                );
-            let mut sharded_state_updates = create_empty_sharded_state_updates();
-            sharded_state_updates.par_iter_mut().enumerate().for_each(
-                |(shard_id, state_updates_shard)| {
-                    txns_to_commit[..=idx].iter().for_each(|txn_to_commit| {
-                        state_updates_shard.extend(txn_to_commit.state_updates()[shard_id].clone());
-                    })
-                },
-            );
-            return Some(sharded_state_updates);
-        }
-    }
-
-    None
-}
-
-/// Test only methods for the DB
-impl AptosDB {
-    pub fn save_transactions_for_test(
-        &self,
-        txns_to_commit: &[TransactionToCommit],
-        first_version: Version,
-        base_state_version: Option<Version>,
-        ledger_info_with_sigs: Option<&LedgerInfoWithSignatures>,
-        sync_commit: bool,
-        latest_in_memory_state: StateDelta,
-    ) -> Result<()> {
-        let state_updates_until_last_checkpoint = gather_state_updates_until_last_checkpoint(
-            first_version,
-            &latest_in_memory_state,
-            txns_to_commit,
-        );
-        self.save_transactions(
-            txns_to_commit,
-            first_version,
-            base_state_version,
-            ledger_info_with_sigs,
-            sync_commit,
-            latest_in_memory_state,
-            state_updates_until_last_checkpoint,
-            None,
-        )
-    }
 }

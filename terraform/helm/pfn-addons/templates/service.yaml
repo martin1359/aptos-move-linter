@@ -9,6 +9,9 @@ metadata:
     alb.ingress.kubernetes.io/healthcheck-path: /v1/-/healthy
     {{- end }}
     {{- if eq .Values.ingress.class "gce" }}
+    {{- if .Values.ingress.backend_http2 }}
+    cloud.google.com/app-protocols: '{"default": "HTTP2"}'
+    {{- end }}
     cloud.google.com/backend-config: '{"default":"{{ include "pfn-addons.fullname" . }}"}'
     cloud.google.com/neg: '{"ingress": true}'
     {{- end }}

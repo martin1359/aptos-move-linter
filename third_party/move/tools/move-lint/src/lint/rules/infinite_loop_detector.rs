@@ -60,9 +60,10 @@ impl InfiniteLoopDetectorVisitor {
                 match exp {
                     ExpData::LoopCont(_, false) => contains_break_or_return = true,
                     ExpData::Return(_, _) => contains_break_or_return = true,
-                    _ => {},
+                    _ => (),
                 }
-            }
+            };
+            true
         });
         contains_break_or_return
     }

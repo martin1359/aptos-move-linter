@@ -44,8 +44,7 @@ impl AptosDB {
         AptosDB {
             ledger_db: Arc::clone(&ledger_db),
             state_kv_db: Arc::clone(&state_kv_db),
-            event_store: Arc::new(EventStore::new(ledger_db.event_db_arc())),
-            ledger_store: Arc::new(LedgerStore::new(Arc::clone(&ledger_db))),
+            event_store: Arc::new(EventStore::new(ledger_db.event_db().db_arc())),
             state_store,
             transaction_store: Arc::new(TransactionStore::new(Arc::clone(&ledger_db))),
             ledger_pruner,
@@ -117,10 +116,10 @@ impl AptosDB {
         );
 
         if indexer.next_version() < ledger_next_version {
-            let state_view = DbStateView {
-                db: self.state_store.clone(),
-                version: Some(ledger_next_version - 1),
-            };
+            use aptos_storage_interface::state_view::DbStateViewAtVersion;
+            let db: Arc<dyn DbReader> = self.state_store.clone();
+
+            let state_view = db.state_view_at_version(Some(ledger_next_version - 1))?;
             let resolver = state_view.as_move_resolver();
             let annotator = MoveValueAnnotator::new(&resolver);
 
@@ -130,7 +129,8 @@ impl AptosDB {
                 info!(next_version = next_version, "AptosDB Indexer catching up. ",);
                 let end_version = std::cmp::min(ledger_next_version, next_version + BATCH_SIZE);
                 let write_sets = self
-                    .transaction_store
+                    .ledger_db
+                    .write_set_db()
                     .get_write_sets(next_version, end_version)?;
                 let write_sets_ref: Vec<_> = write_sets.iter().collect();
                 indexer.index_with_annotator(&annotator, next_version, &write_sets_ref)?;
@@ -144,7 +144,7 @@ impl AptosDB {
         Ok(())
     }
 
-    #[cfg(any(test, feature = "fuzzing"))]
+    #[cfg(any(test, feature = "fuzzing", feature = "consensus-only-perf-test"))]
     fn new_without_pruner<P: AsRef<Path> + Clone>(
         db_root_path: P,
         readonly: bool,
@@ -192,7 +192,7 @@ impl AptosDB {
             .epoch_snapshot_pruner
             .get_min_readable_version();
         if version >= min_readable_epoch_snapshot_version {
-            self.ledger_store.ensure_epoch_ending(version)
+            self.ledger_db.metadata_db().ensure_epoch_ending(version)
         } else {
             bail!(
                 "{} at version {} is pruned. snapshots are available at >= {}, epoch snapshots are available at >= {}",
@@ -225,36 +225,54 @@ impl Debug for AptosDB {
 
 fn error_if_too_many_requested(num_requested: u64, max_allowed: u64) -> Result<()> {
     if num_requested > max_allowed {
-        Err(AptosDbError::TooManyRequested(num_requested, max_allowed).into())
+        Err(AptosDbError::TooManyRequested(num_requested, max_allowed))
     } else {
         Ok(())
     }
+}
+
+thread_local! {
+    static ENTERED_GAUGED_API: Cell<bool> = Cell::new(false);
 }
 
 fn gauged_api<T, F>(api_name: &'static str, api_impl: F) -> Result<T>
 where
     F: FnOnce() -> Result<T>,
 {
-    let timer = Instant::now();
+    let nested = ENTERED_GAUGED_API.with(|entered| {
+        if entered.get() {
+            true
+        } else {
+            entered.set(true);
+            false
+        }
+    });
 
-    let res = api_impl();
+    if nested {
+        api_impl()
+    } else {
+        let timer = Instant::now();
 
-    let res_type = match &res {
-        Ok(_) => "Ok",
-        Err(e) => {
-            warn!(
-                api_name = api_name,
-                error = ?e,
-                "AptosDB API returned error."
-            );
-            "Err"
-        },
-    };
-    API_LATENCY_SECONDS
-        .with_label_values(&[api_name, res_type])
-        .observe(timer.elapsed().as_secs_f64());
+        let res = api_impl();
 
-    res
+        let res_type = match &res {
+            Ok(_) => "Ok",
+            Err(e) => {
+                warn!(
+                    api_name = api_name,
+                    error = ?e,
+                    "AptosDB API returned error."
+                );
+                "Err"
+            },
+        };
+        API_LATENCY_SECONDS
+            .with_label_values(&[api_name, res_type])
+            .observe(timer.elapsed().as_secs_f64());
+        ENTERED_GAUGED_API.with(|entered| entered.set(false));
+
+        res
+    }
 }
 
 // Convert requested range and order to a range in ascending order.
