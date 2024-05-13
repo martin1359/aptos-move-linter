@@ -6,4 +6,4 @@ version = "1.0.0"
 rewards_pool = "0xCAFE"
 
 [dependencies]
-AptosFramework = { local = "../../framework/aptos-framework" }
+AptosFramework = { local = "../../../../../../../aptos-move/framework/aptos-framework" }

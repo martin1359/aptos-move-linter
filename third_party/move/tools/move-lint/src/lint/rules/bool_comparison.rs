@@ -45,6 +45,16 @@ impl BoolComparisonVisitor {
         diags: &mut Vec<Diagnostic<FileId>>,
     ) {
         if let ExpData::Call(_, oper, args) = &cond {
+            if let Operation::Pack(_, _) = oper {
+                // Ignore the case where the comparison is with a function call
+                return;
+            }
+
+            if let Operation::Tuple = oper {
+                // Ignore the case where the comparison is with a function call
+                return;
+            }
+
             if let (Some(first_arg), Some(second_arg)) = (args.get(0), args.get(1)) {
                 if let (
                     ExpData::Value(_, Value::Bool(a)),

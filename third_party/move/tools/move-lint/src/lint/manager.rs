@@ -72,7 +72,6 @@ impl VisitorManager {
     }
 
     pub fn diagnostics(&self) -> Vec<Diagnostic<FileId>> {
-        eprintln!("Diagnostics: {:?}", self.diagnostics);
         self.diagnostics.clone()
     }
 }

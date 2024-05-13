@@ -57,7 +57,7 @@ impl UnusedBorrowGlobalMutVisitor {
                 }
                 assigned_refs.insert(*src, *target);
             },
-            Bytecode::Assign(_, target, src, AssignKind::Move) => {
+            Bytecode::Assign(_, target, src, AssignKind::Move | AssignKind::Copy) => {
                 assigned_refs.insert(*src, *target);
             },
             Bytecode::Call(_, dest, Operation::BorrowField(_, _, _, _), srcs, _) => {
@@ -65,13 +65,10 @@ impl UnusedBorrowGlobalMutVisitor {
                     borrow_fields.insert(*src, *des);
                 }
             },
-            Bytecode::Call(_, _, Operation::WriteRef | Operation::Function(_, _, _), srcs, _) => {
+            Bytecode::Call(_, _, Operation::WriteRef, _, _) => {
                 let (_, mut_mods) = bytecode.modifies(func_target);
                 for (idx, _) in mut_mods {
                     modified.insert(idx);
-                }
-                for src in srcs {
-                    modified.insert(*src);
                 }
                 self.find_unused_borrow_mut_refs(
                     all_borrow_mut_refs,
@@ -79,6 +76,28 @@ impl UnusedBorrowGlobalMutVisitor {
                     &borrow_fields,
                     &modified,
                 );
+            },
+            Bytecode::Call(_, targets, Operation::FreezeRef(_), srcs, _) => {
+                if let (Some(src), Some(target)) = (srcs.first(), targets.first()) {
+                    assigned_refs.insert(*src, *target);
+                };
+            },
+            Bytecode::Call(_, _, Operation::Function(_, _, _), srcs, _) => {
+                let (_, mut_mods) = bytecode.modifies(func_target);
+                for (idx, _) in mut_mods {
+                    modified.insert(idx);
+                }
+                if srcs.len() > 0 {
+                    for src in srcs {
+                        modified.insert(*src);
+                    }
+                    self.find_unused_borrow_mut_refs(
+                        all_borrow_mut_refs,
+                        &assigned_refs,
+                        &borrow_fields,
+                        &modified,
+                    );
+                }
             },
             _ => {},
         }
@@ -121,8 +140,19 @@ impl UnusedBorrowGlobalMutVisitor {
                 }
             } else if modified.contains(&ref_id) {
                 all_borrow_mut_refs.remove_entry(&ref_id);
-            } else if let Some(&mapped_ref) = borrow_fields.get(&ref_id) {
-                if modified.contains(&mapped_ref) {
+            } else if let Some(&borrowed_id) = borrow_fields.get(&ref_id) {
+                if modified.contains(&borrowed_id) {
+                    all_borrow_mut_refs.remove_entry(&ref_id);
+                }
+                let borrow_temp_id =
+                    self.find_borrow_global_temp_id(&borrowed_id, all_assigned_refs);
+
+                if borrow_temp_id.is_none() {
+                    return;
+                }
+                let is_modified = modified.contains(&borrow_temp_id.unwrap());
+
+                if is_modified {
                     all_borrow_mut_refs.remove_entry(&ref_id);
                 }
             }
@@ -163,9 +193,8 @@ impl ExpressionAnalysisVisitor for UnusedBorrowGlobalMutVisitor {
                 &mut modified,
             );
         }
-
         for (_, attr_id) in all_borrow_mut_refs {
-            let message = "Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead";
+            let message = "Unnecessary mutable borrow, use immutable borrow instead";
             add_diagnostic_and_emit(
                 &target.get_bytecode_loc(attr_id),
                 message,

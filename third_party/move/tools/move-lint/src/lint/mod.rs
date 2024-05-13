@@ -52,53 +52,117 @@ use self::{
     utils::read_config_or_default,
 };
 use crate::lint::utils::LintConfig;
+use clap::{Parser, ValueEnum};
 use codespan::{FileId, Files};
 use codespan_reporting::diagnostic::Diagnostic;
 use std::path::PathBuf;
 
-pub fn main(path: PathBuf) -> (Vec<Diagnostic<FileId>>, Files<String>) {
+#[derive(Parser, Debug)]
+#[clap(version, about = "An Aptos Move Linter")]
+pub struct Args {
+    #[clap(value_parser)]
+    input_file: PathBuf,
+
+    #[clap(short, long, value_enum, default_value_t=LintLevel::Default)]
+    level: LintLevel,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum LintLevel {
+    // No linters
+    None,
+    // Run only the default linters
+    Default,
+    // Run all linters
+    All,
+}
+pub fn main(args: Args) -> (Vec<Diagnostic<FileId>>, Files<String>) {
+    let path = args.input_file;
     let lint_config = read_config_or_default(&path).unwrap_or_else(|_e| LintConfig::default());
     let env = build::build_ast(Some(path))
         .expect("Failed to initialize environment. Expected a valid path with necessary data.");
-    let mut manager = VisitorManager::new(vec![
-        BoolComparisonVisitor::visitor(),
-        RedundantRefDerefVisitor::visitor(),
-        ComplexInlineFunctionVisitor::visitor(),
-        DeepNestingVisitor::visitor(),
-        CombinableBoolVisitor::visitor(),
-        EmptyLoopVisitor::visitor(),
-        GetterMethodFieldMatchLint::visitor(),
-        IfsSameCondVisitor::visitor(),
-        MultiplicationBeforeDivisionVisitor::visitor(),
-        MultiplicationBeforeDivisionVisitor::visitor(),
-        RedundantDerefRefVisitor::visitor(),
-        ShiftOverflowVisitor::visitor(),
-        ShiftOverflowVisitor::visitor(),
-        SortedImportsLint::visitor(),
-        UnconditionalExitLoopVisitor::visitor(),
-        UnmodifiedMutableArgumentLint::visitor(),
-        UnnecessaryMutableReferenceLint::visitor(),
-        UnnecessaryTypeConversionVisitor::visitor(),
-        UnusedBorrowGlobalMutVisitor::visitor(),
-        UseMulDivLint::visitor(),
-        ConstantNamingVisitor::visitor(),
-        ReturnAtEndOfBlockVisitor::visitor(),
-        MeaninglessMathOperationsVisitor::visitor(),
-        OutOfBoundsArrayIndexingVisitor::visitor(),
-        RedundantBooleanExpressions::visitor(),
-        ExplicitSelfAssignmentsVisitor::visitor(),
-        UnnecessaryWhileTrueVisitor::visitor(),
-        InfiniteLoopDetectorVisitor::visitor(),
-        OverflowMultiplicationDetectorVisitor::visitor(),
-        NeedlessBoolVisitor::visitor(),
-        ExceedParamsVisitor::visitor(),
-        ExceedFieldsVisitor::visitor(),
-        ExceedBlocksVisitor::visitor(),
-        RandomnessPublicEntry::visitor(),
-        EventAttributeAbility::visitor(),
-        LikelyComparisonMistake::visitor(),
-    ]);
 
+    let linters = match args.level {
+        LintLevel::None => vec![],
+        LintLevel::Default => vec![
+            BoolComparisonVisitor::visitor(),
+            RedundantRefDerefVisitor::visitor(),
+            ComplexInlineFunctionVisitor::visitor(),
+            DeepNestingVisitor::visitor(),
+            CombinableBoolVisitor::visitor(),
+            EmptyLoopVisitor::visitor(),
+            GetterMethodFieldMatchLint::visitor(),
+            IfsSameCondVisitor::visitor(),
+            MultiplicationBeforeDivisionVisitor::visitor(),
+            MultiplicationBeforeDivisionVisitor::visitor(),
+            RedundantDerefRefVisitor::visitor(),
+            ShiftOverflowVisitor::visitor(),
+            ShiftOverflowVisitor::visitor(),
+            UnconditionalExitLoopVisitor::visitor(),
+            UnmodifiedMutableArgumentLint::visitor(),
+            UnnecessaryMutableReferenceLint::visitor(),
+            UnnecessaryTypeConversionVisitor::visitor(),
+            UnusedBorrowGlobalMutVisitor::visitor(),
+            UseMulDivLint::visitor(),
+            ConstantNamingVisitor::visitor(),
+            ReturnAtEndOfBlockVisitor::visitor(),
+            MeaninglessMathOperationsVisitor::visitor(),
+            OutOfBoundsArrayIndexingVisitor::visitor(),
+            RedundantBooleanExpressions::visitor(),
+            ExplicitSelfAssignmentsVisitor::visitor(),
+            UnnecessaryWhileTrueVisitor::visitor(),
+            InfiniteLoopDetectorVisitor::visitor(),
+            OverflowMultiplicationDetectorVisitor::visitor(),
+            NeedlessBoolVisitor::visitor(),
+            ExceedParamsVisitor::visitor(),
+            ExceedFieldsVisitor::visitor(),
+            ExceedBlocksVisitor::visitor(),
+            RandomnessPublicEntry::visitor(),
+            EventAttributeAbility::visitor(),
+            LikelyComparisonMistake::visitor(),
+        ],
+        LintLevel::All => {
+            vec![
+                BoolComparisonVisitor::visitor(),
+                RedundantRefDerefVisitor::visitor(),
+                ComplexInlineFunctionVisitor::visitor(),
+                DeepNestingVisitor::visitor(),
+                CombinableBoolVisitor::visitor(),
+                EmptyLoopVisitor::visitor(),
+                GetterMethodFieldMatchLint::visitor(),
+                IfsSameCondVisitor::visitor(),
+                MultiplicationBeforeDivisionVisitor::visitor(),
+                MultiplicationBeforeDivisionVisitor::visitor(),
+                RedundantDerefRefVisitor::visitor(),
+                ShiftOverflowVisitor::visitor(),
+                ShiftOverflowVisitor::visitor(),
+                SortedImportsLint::visitor(),
+                UnconditionalExitLoopVisitor::visitor(),
+                UnmodifiedMutableArgumentLint::visitor(),
+                UnnecessaryMutableReferenceLint::visitor(),
+                UnnecessaryTypeConversionVisitor::visitor(),
+                UnusedBorrowGlobalMutVisitor::visitor(),
+                UseMulDivLint::visitor(),
+                ConstantNamingVisitor::visitor(),
+                ReturnAtEndOfBlockVisitor::visitor(),
+                MeaninglessMathOperationsVisitor::visitor(),
+                OutOfBoundsArrayIndexingVisitor::visitor(),
+                RedundantBooleanExpressions::visitor(),
+                ExplicitSelfAssignmentsVisitor::visitor(),
+                UnnecessaryWhileTrueVisitor::visitor(),
+                InfiniteLoopDetectorVisitor::visitor(),
+                OverflowMultiplicationDetectorVisitor::visitor(),
+                NeedlessBoolVisitor::visitor(),
+                ExceedParamsVisitor::visitor(),
+                ExceedFieldsVisitor::visitor(),
+                ExceedBlocksVisitor::visitor(),
+                RandomnessPublicEntry::visitor(),
+                EventAttributeAbility::visitor(),
+                LikelyComparisonMistake::visitor(),
+            ]
+        },
+    };
+    let mut manager = VisitorManager::new(linters);
     let files = env.0.model.get_source_files();
     manager.run(env, &lint_config);
     (manager.diagnostics(), files)

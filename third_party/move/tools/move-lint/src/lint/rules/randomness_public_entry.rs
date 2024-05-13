@@ -37,7 +37,7 @@ impl RandomnessPublicEntry {
         env: &GlobalEnv,
         diags: &mut Vec<Diagnostic<FileId>>,
     ) {
-        if let ExpData::Call(_, Operation::MoveFunction(module_id, func_id), _) = exp {
+        if let ExpData::Call(_, Operation::MoveFunction(module_id, _), _) = exp {
             let module_name = env
                 .symbol_pool()
                 .string(env.get_module(*module_id).get_name().name())

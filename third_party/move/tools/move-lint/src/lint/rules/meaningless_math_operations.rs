@@ -40,7 +40,7 @@ impl MeaninglessMathOperationsVisitor {
     ) {
         if let ExpData::Call(_, oper, args) = exp {
             if self.is_meaningless_operation(oper, args) {
-                let message = "Detected a meaningless mathematical operation.";
+                let message = "Detected a unnecessary mathematical operation.";
                 add_diagnostic_and_emit(
                     &env.get_node_loc(exp.node_id()),
                     message,

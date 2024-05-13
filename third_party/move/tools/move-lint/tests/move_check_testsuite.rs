@@ -1,12 +1,13 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
+use clap::Parser;
 use codespan_reporting::term::{emit, termcolor::Buffer, Config};
 use move_command_line_common::{
     env::read_bool_env_var,
     testing::{add_update_baseline_fix, format_diff, read_env_update_baseline, EXP_EXT, OUT_EXT},
 };
-use move_lint::lint;
+use move_lint::lint::{self, Args};
 use std::{fs, path::Path};
 const KEEP_TMP: &str = "KEEP";
 
@@ -26,10 +27,10 @@ pub fn run_test(path: &Path, exp_path: &Path, out_path: &Path) -> anyhow::Result
 
 // Runs all tests under the test/testsuite directory.
 pub fn run_test_inner(path: &Path, exp_path: &Path, out_path: &Path) -> anyhow::Result<()> {
-    let (diags, files) = lint::main(path.to_path_buf());
+    let args = Args::parse();
+    let (diags, files) = lint::main(args);
     let has_diags = !diags.is_empty();
     let mut writer = Buffer::no_color();
-    eprintln!("diags: {:?}", diags);
     for diag in diags {
         let _ = emit(&mut writer, &Config::default(), &files, &diag);
     }

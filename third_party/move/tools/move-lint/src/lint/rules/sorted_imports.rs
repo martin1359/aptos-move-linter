@@ -38,10 +38,7 @@ impl SortedImportsLint {
             .collect::<Vec<_>>();
 
         if imports_string != sorted_imports_string {
-            let message = format!(
-                "Imports in module {:?} are not sorted alphabetically.",
-                module_env.get_name().display(module_env.env).to_string()
-            );
+            let message = format!("Import in script are not sorted alphabetically.",);
             add_diagnostic_and_emit_by_span(
                 imports.first().unwrap().loc.span(),
                 imports.last().unwrap().loc.span(),

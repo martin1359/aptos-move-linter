@@ -48,7 +48,8 @@ impl UseMulDivLint {
                         && self.is_u64_or_u128(&vec_exp_mul[1], env)
                         && self.is_u64_or_u128(&vec_exp_div[1], env)
                     {
-                        let message = "Use math64::mul_div or math128::mul_div instead of mul/div.";
+                        let message =
+                            "Use math64::mul div or math128::mul_div instead of * and / operators.";
                         add_diagnostic_and_emit(
                             &env.get_node_loc(exp.node_id()),
                             message,
