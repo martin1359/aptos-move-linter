@@ -85,6 +85,6 @@ pub fn run_test_inner(path: &Path, exp_path: &Path, out_path: &Path) -> anyhow::
 
 datatest_stable::harness!(
     move_check_testsuite,
-    "/Users/dmr/Projects/rust/aptos-move-linter/aptos-move/framework/aptos-framework",
+    "/Users/dmr/Projects/rust/aptos-move-linter/aptos-move/framework/move-stdlib",
     r".*\.move$"
 );

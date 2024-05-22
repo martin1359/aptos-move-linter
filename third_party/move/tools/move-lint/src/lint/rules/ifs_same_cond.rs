@@ -38,7 +38,7 @@ impl IfsSameCondVisitor {
         exp: &ExpData,
         func_env: &FunctionEnv,
         env: &GlobalEnv,
-    ) -> String {
+    ) -> Option<String> {
         let vars = &mut Vec::new();
         let opers = &mut Vec::new();
         self.get_condition_string(exp, env, func_env, vars, opers)
@@ -53,9 +53,9 @@ impl IfsSameCondVisitor {
         func_env: &FunctionEnv,
         vars: &mut Vec<String>,
         opers: &mut Vec<Operation>,
-    ) -> String {
+    ) -> Option<String> {
         if let ExpData::Call(_, Operation::Exists(_), _) = exp {
-            return String::new();
+            return None;
         }
         match exp {
             ExpData::Call(_, oper, vec_exp) => {
@@ -78,7 +78,7 @@ impl IfsSameCondVisitor {
             _ => (),
         }
 
-        format!("{:?} {:?}", vars, opers)
+        Some(format!("{:?} {:?}", vars, opers))
     }
 
 }
@@ -98,6 +98,9 @@ impl ExpressionAnalysisVisitor for IfsSameCondVisitor {
                     if !up {
                         if let ExpData::IfElse(_, cond, _, if_else) = exp {
                             if let ExpData::IfElse(_, if_else_cond, _, _) = if_else.as_ref() {
+                                if self.wrapper_condition_string(cond.as_ref(), func_env, env).is_none() || self.wrapper_condition_string(if_else_cond.as_ref(), func_env, env).is_none(){
+                                    return true;
+                                };
                                 if self.wrapper_condition_string(cond.as_ref(), func_env, env) == self.wrapper_condition_string(if_else_cond.as_ref(), func_env, env){
                                     let message =
                                         "Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.";

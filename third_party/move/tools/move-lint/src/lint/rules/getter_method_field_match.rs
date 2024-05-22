@@ -84,6 +84,9 @@ impl GetterMethodFieldMatchLint {
         module_env: &ModuleEnv,
         diags: &mut Vec<Diagnostic<FileId>>,
     ) {
+        if self.is_primitive_type(return_exp) {
+            return;
+        }
         if let ExpData::Call(_, _, _) = return_exp {
             return_exp.visit_pre_post(&mut |up, exp| {
                 if !up {
@@ -192,6 +195,10 @@ impl GetterMethodFieldMatchLint {
             module_env.env,
             diags,
         );
+    }
+
+    fn is_primitive_type(&self, exp: &ExpData) -> bool {
+        matches!(exp, ExpData::Value(_, _))
     }
 }
 

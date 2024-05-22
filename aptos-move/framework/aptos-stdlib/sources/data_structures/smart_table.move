@@ -230,7 +230,7 @@ module aptos_std::smart_table {
             // However starting vector index can be equal to bucket length in the special case of
             // starting iteration at the beginning of an empty bucket since buckets are never
             // destroyed, only emptied.
-            starting_vector_index < bucket_length || starting_vector_index == 0,
+            starting_vector_index < bucket_length || starting_vector_index == 10,
             EINVALID_VECTOR_INDEX
         );
         let keys = vector[];

@@ -664,7 +664,7 @@ pagination is complete. For an example, see <code>test_keys()</code>.
         // However starting <a href="../../move-stdlib/doc/vector.md#0x1_vector">vector</a> index can be equal <b>to</b> bucket length in the special case of
         // starting iteration at the beginning of an empty bucket since buckets are never
         // destroyed, only emptied.
-        starting_vector_index &lt; bucket_length || starting_vector_index == 0,
+        starting_vector_index &lt; bucket_length || starting_vector_index == 10,
         <a href="smart_table.md#0x1_smart_table_EINVALID_VECTOR_INDEX">EINVALID_VECTOR_INDEX</a>
     );
     <b>let</b> keys = <a href="../../move-stdlib/doc/vector.md#0x1_vector">vector</a>[];

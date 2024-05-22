@@ -43,7 +43,7 @@ use self::{
         redundant_ref_deref::RedundantRefDerefVisitor,
         return_at_end_of_block::ReturnAtEndOfBlockVisitor, shift_overflow::ShiftOverflowVisitor,
         sorted_imports::SortedImportsLint, unconditional_exit_loop::UnconditionalExitLoopVisitor,
-        unmodified_mutable_argument_lint::UnmodifiedMutableArgumentLint,
+        unmodified_mutable_argument::UnmodifiedMutableArgumentLint,
         unnecessary_mutable_reference::UnnecessaryMutableReferenceLint,
         unnecessary_type_conversion::UnnecessaryTypeConversionVisitor,
         unnecessary_while_true::UnnecessaryWhileTrueVisitor,
@@ -61,16 +61,14 @@ use std::path::PathBuf;
 #[clap(version, about = "An Aptos Move Linter")]
 pub struct Args {
     #[clap(value_parser)]
-    input_file: PathBuf,
+    pub input_file: PathBuf,
 
     #[clap(short, long, value_enum, default_value_t=LintLevel::Default)]
-    level: LintLevel,
+    pub level: LintLevel,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum LintLevel {
-    // No linters
-    None,
     // Run only the default linters
     Default,
     // Run all linters
@@ -83,7 +81,6 @@ pub fn main(args: Args) -> (Vec<Diagnostic<FileId>>, Files<String>) {
         .expect("Failed to initialize environment. Expected a valid path with necessary data.");
 
     let linters = match args.level {
-        LintLevel::None => vec![],
         LintLevel::Default => vec![
             BoolComparisonVisitor::visitor(),
             RedundantRefDerefVisitor::visitor(),

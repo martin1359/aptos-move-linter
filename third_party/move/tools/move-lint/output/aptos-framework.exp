@@ -10,264 +10,65 @@ warning: Mutable parameter `creation_num_ref` is never modified in function `cre
 32 │ │     }
    │ ╰─────^ Mutable parameter `creation_num_ref` is never modified in function `create`.
 
-warning: Imports in module "account" are not sorted alphabetically.
-   ┌─ ./sources/account.move:2:14
-   │  
- 2 │       use std::bcs;
-   │ ╭──────────────^
- 3 │ │     use std::error;
- 4 │ │     use std::hash;
- 5 │ │     use std::option::{Self, Option};
-   · │
-16 │ │     use aptos_std::table::{Self, Table};
-17 │ │     use aptos_std::type_info::{Self, TypeInfo};
-   │ ╰─────────────────────────────────────────────^ Imports in module "account" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/account.move:778:23
-    │
-778 │         let account = borrow_global_mut<Account>(addr);
-    │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:746:23
     │
 746 │         let account = borrow_global_mut<Account>(resource_addr);
-    │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/account.move:258:36
-    │
-258 │         let sequence_number = &mut borrow_global_mut<Account>(addr).sequence_number;
-    │                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:455:32
     │
 455 │         let account_resource = borrow_global_mut<Account>(addr);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:563:32
     │
 563 │         let account_resource = borrow_global_mut<Account>(source_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:530:32
     │
 530 │         let account_resource = borrow_global_mut<Account>(signer::address_of(account));
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:600:32
     │
 600 │         let account_resource = borrow_global_mut<Account>(signer::address_of(account));
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:520:32
     │
 520 │         let account_resource = borrow_global_mut<Account>(addr);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:590:32
     │
 590 │         let account_resource = borrow_global_mut<Account>(addr);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:337:32
     │
 337 │         let account_resource = borrow_global_mut<Account>(addr);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/account.move:285:32
-    │
-285 │         let account_resource = borrow_global_mut<Account>(addr);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:419:40
     │
 419 │         let offerer_account_resource = borrow_global_mut<Account>(rotation_cap_offerer_address);
-    │                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/account.move:657:32
-    │
-657 │         let address_map = &mut borrow_global_mut<OriginatingAddress>(@aptos_framework).address_map;
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/account.move:845:32
     │
 845 │         let account_resource = borrow_global_mut<Account>(account);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Mutable parameter `aggregator` is never modified in function `add`.
-   ┌─ ./sources/aggregator/aggregator.move:38:5
-   │
-38 │     public native fun add(aggregator: &mut Aggregator, value: u128);
-   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Mutable parameter `aggregator` is never modified in function `add`.
-
-warning: Mutable parameter `aggregator` is never modified in function `sub`.
-   ┌─ ./sources/aggregator/aggregator.move:41:5
-   │
-41 │     public native fun sub(aggregator: &mut Aggregator, value: u128);
-   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Mutable parameter `aggregator` is never modified in function `sub`.
-
-warning: Imports in module "aggregator_factory" are not sorted alphabetically.
-  ┌─ ./sources/aggregator/aggregator_factory.move:7:14
-  │  
-2 │ │ /// Aptos Framework (0x1) can create them, so this module helps to wrap
-  │ ╰───^ Imports in module "aggregator_factory" are not sorted alphabetically.
-  · │
-7 │       use std::error;
-  │ ╭──────────────^
-
-warning: Mutable parameter `aggregator_factory` is never modified in function `new_aggregator`.
-   ┌─ ./sources/aggregator/aggregator_factory.move:55:5
-   │
-55 │     native fun new_aggregator(aggregator_factory: &mut AggregatorFactory, limit: u128): Aggregator;
-   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Mutable parameter `aggregator_factory` is never modified in function `new_aggregator`.
-
-warning: Mutable parameter `aggregator` is never modified in function `try_add`.
-   ┌─ ./sources/aggregator_v2/aggregator_v2.move:78:5
-   │
-78 │     public native fun try_add<IntElement>(aggregator: &mut Aggregator<IntElement>, value: IntElement): bool;
-   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Mutable parameter `aggregator` is never modified in function `try_add`.
-
-warning: Mutable parameter `aggregator` is never modified in function `try_sub`.
-   ┌─ ./sources/aggregator_v2/aggregator_v2.move:88:5
-   │
-88 │     public native fun try_sub<IntElement>(aggregator: &mut Aggregator<IntElement>, value: IntElement): bool;
-   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Mutable parameter `aggregator` is never modified in function `try_sub`.
-
-warning: Imports in module "object" are not sorted alphabetically.
-   ┌─ ./sources/object.move:18:14
-   │  
-18 │       use std::bcs;
-   │ ╭──────────────^
-19 │ │     use std::error;
-20 │ │     use std::hash;
-21 │ │     use std::signer;
-   · │
-29 │ │     use aptos_framework::event;
-30 │ │     use aptos_framework::guid;
-   │ ╰─────────────────────────────^ Imports in module "object" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/object.move:379:27
-    │
-379 │         let object_data = borrow_global_mut<ObjectCore>(addr);
-    │                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "optional_aggregator" are not sorted alphabetically.
-  ┌─ ./sources/aggregator/optional_aggregator.move:4:14
-  │  
-4 │       use std::error;
-  │ ╭──────────────^
-5 │ │     use std::option::{Self, Option};
-6 │ │ 
-7 │ │     use aptos_framework::aggregator_factory;
-8 │ │     use aptos_framework::aggregator::{Self, Aggregator};
-  │ ╰──────────────────────────────────────────────────────^ Imports in module "optional_aggregator" are not sorted alphabetically.
-
-warning: Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
-    ┌─ ./sources/fungible_asset.move:839:9
-    │  
-839 │ ╭         if (exists<ConcurrentSupply>(metadata_address)) {
-840 │ │             let supply = borrow_global_mut<ConcurrentSupply>(metadata_address);
-841 │ │ 
-842 │ │             assert!(
-    · │
-855 │ │             assert!(false, error::not_found(ESUPPLY_NOT_FOUND));
-856 │ │         }
-    │ ╰─────────^ Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
-
-warning: Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
-    ┌─ ./sources/fungible_asset.move:811:9
-    │  
-811 │ ╭         if (exists<ConcurrentSupply>(metadata_address)) {
-812 │ │             let supply = borrow_global_mut<ConcurrentSupply>(metadata_address);
-813 │ │             assert!(
-814 │ │                 aggregator_v2::try_add(&mut supply.current, (amount as u128)),
-    · │
-828 │ │             abort error::not_found(ESUPPLY_NOT_FOUND)
-829 │ │         }
-    │ ╰─────────^ Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
-
-warning: Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
-    ┌─ ./sources/fungible_asset.move:370:9
-    │  
-370 │ ╭         if (exists<ConcurrentSupply>(metadata_address)) {
-371 │ │             let supply = borrow_global<ConcurrentSupply>(metadata_address);
-372 │ │             let max_value = aggregator_v2::max_value(&supply.current);
-373 │ │             if (max_value == MAX_U128) {
-    · │
-382 │ │             option::none()
-383 │ │         }
-    │ ╰─────────^ Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
-
-warning: Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
-    ┌─ ./sources/fungible_asset.move:354:9
-    │  
-354 │ ╭         if (exists<ConcurrentSupply>(metadata_address)) {
-355 │ │             let supply = borrow_global<ConcurrentSupply>(metadata_address);
-356 │ │             option::some(aggregator_v2::read(&supply.current))
-357 │ │         } else if (exists<Supply>(metadata_address)) {
-    · │
-361 │ │             option::none()
-362 │ │         }
-    │ ╰─────────^ Detected consecutive if conditions with the same expression. Consider refactoring to avoid redundancy.
-
-warning: Imports in module "fungible_asset" are not sorted alphabetically.
-   ┌─ ./sources/fungible_asset.move:4:26
-   │  
- 4 │       use aptos_framework::aggregator_v2::{Self, Aggregator};
-   │ ╭──────────────────────────^
- 5 │ │     use aptos_framework::event;
- 6 │ │     use aptos_framework::function_info::{Self, FunctionInfo};
- 7 │ │     use aptos_framework::object::{Self, Object, ConstructorRef, DeleteRef, ExtendRef};
-   · │
-13 │ │     use std::signer;
-14 │ │     use std::string::String;
-   │ ╰───────────────────────────^ Imports in module "fungible_asset" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/fungible_asset.move:667:9
-    │
-667 │         borrow_global_mut<FungibleStore>(store_addr).frozen = frozen;
-    │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "dispatchable_fungible_asset" are not sorted alphabetically.
-   ┌─ ./sources/dispatchable_fungible_asset.move:18:26
-   │  
-18 │       use aptos_framework::fungible_asset::{Self, FungibleAsset, TransferRef};
-   │ ╭──────────────────────────^
-19 │ │     use aptos_framework::function_info::{Self, FunctionInfo};
-20 │ │     use aptos_framework::object::{Self, ConstructorRef, Object};
-21 │ │ 
-22 │ │     use std::error;
-23 │ │     use std::features;
-24 │ │     use std::option::{Self, Option};
-   │ ╰──────────────────────────────────^ Imports in module "dispatchable_fungible_asset" are not sorted alphabetically.
-
-warning: Imports in module "primary_fungible_store" are not sorted alphabetically.
-   ┌─ ./sources/primary_fungible_store.move:15:26
-   │  
-15 │       use aptos_framework::dispatchable_fungible_asset;
-   │ ╭──────────────────────────^
-16 │ │     use aptos_framework::fungible_asset::{Self, FungibleAsset, FungibleStore, Metadata, MintRef, TransferRef, BurnRef};
-17 │ │     use aptos_framework::object::{Self, Object, ConstructorRef, DeriveRef};
-18 │ │ 
-   · │
-21 │ │     use std::signer;
-22 │ │     use std::string::String;
-   │ ╰───────────────────────────^ Imports in module "primary_fungible_store" are not sorted alphabetically.
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
 warning: Use `is_apt` directly instead of `!is_apt == false`.
     ┌─ ./sources/coin.move:299:21
@@ -281,91 +82,17 @@ warning: Use `is_apt` directly instead of `!is_apt == false`.
 299 │             assert!(!is_apt || allow_apt_creation, error::invalid_state(EAPT_PAIRING_IS_NOT_ENABLED));
     │                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use `is_apt` directly instead of `!is_apt == false`.
 
-warning: Getter method `is_coin_store_frozen` does not return required field.
-    ┌─ ./sources/coin.move:736:51
-    │  
-736 │       ): bool acquires CoinStore, CoinConversionMap {
-    │ ╭───────────────────────────────────────────────────^
-737 │ │         if (!is_account_registered<CoinType>(account_addr)) {
-738 │ │             return true
-739 │ │         };
-    · │
-742 │ │         coin_store.frozen
-743 │ │     }
-    │ ╰─────^ Getter method `is_coin_store_frozen` does not return required field.
-
-warning: Imports in module "coin" are not sorted alphabetically.
-   ┌─ ./sources/coin.move:3:14
-   │  
- 3 │       use std::string;
-   │ ╭──────────────^
- 4 │ │     use std::error;
- 5 │ │     use std::features;
- 6 │ │     use std::option::{Self, Option};
-   · │
-21 │ │     use aptos_std::type_info::{Self, TypeInfo};
-22 │ │     use aptos_framework::create_signer;
-   │ ╰──────────────────────────────────────^ Imports in module "coin" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/coin.move:502:33
-    │
-502 │         let burn_ref_opt = &mut borrow_global_mut<PairedFungibleAssetRefs>(metadata_addr).burn_ref_opt;
-    │                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/coin.move:1218:37
-     │
-1218 │             let maybe_supply = &mut borrow_global_mut<CoinInfo<CoinType>>(coin_address<CoinType>()).supply;
-     │                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/coin.move:1191:33
-     │
-1191 │         let maybe_supply = &mut borrow_global_mut<CoinInfo<CoinType>>(coin_address<CoinType>()).supply;
-     │                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/coin.move:521:35
-    │
-521 │         let allow_upgrades = &mut borrow_global_mut<SupplyConfig>(@aptos_framework).allow_upgrades;
-    │                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/coin.move:476:33
-    │
-476 │         let burn_ref_opt = &mut borrow_global_mut<PairedFungibleAssetRefs>(metadata_addr).burn_ref_opt;
-    │                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/coin.move:407:33
-    │
-407 │         let mint_ref_opt = &mut borrow_global_mut<PairedFungibleAssetRefs>(metadata_addr).mint_ref_opt;
-    │                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/coin.move:440:37
-    │
-440 │         let transfer_ref_opt = &mut borrow_global_mut<PairedFungibleAssetRefs>(metadata_addr).transfer_ref_opt;
-    │                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/coin.move:984:13
     │
 984 │             borrow_global_mut<SupplyConfig>(@aptos_framework).allow_upgrades,
-    │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/coin.move:988:33
-    │
-988 │         let maybe_supply = &mut borrow_global_mut<CoinInfo<CoinType>>(account_addr).supply;
-    │                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Detected a meaningless mathematical operation.
+warning: Detected a unnecessary mathematical operation.
      ┌─ ./sources/coin.move:1162:39
      │
 1162 │             update supply<CoinType> = supply<CoinType> + 0;
-     │                                       ^^^^^^^^^^^^^^^^^^^^ Detected a meaningless mathematical operation.
+     │                                       ^^^^^^^^^^^^^^^^^^^^ Detected a unnecessary mathematical operation.
 
 warning: Redundant boolean expression detected. Consider simplifying it.
     ┌─ ./sources/coin.move:299:21
@@ -373,282 +100,29 @@ warning: Redundant boolean expression detected. Consider simplifying it.
 299 │             assert!(!is_apt || allow_apt_creation, error::invalid_state(EAPT_PAIRING_IS_NOT_ENABLED));
     │                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Redundant boolean expression detected. Consider simplifying it.
 
-warning: Imports in module "aptos_coin" are not sorted alphabetically.
-   ┌─ ./sources/aptos_coin.move:4:14
-   │  
- 4 │       use std::string;
-   │ ╭──────────────^
- 5 │ │     use std::error;
- 6 │ │     use std::signer;
- 7 │ │     use std::vector;
-   · │
-10 │ │     use aptos_framework::coin::{Self, BurnCapability, MintCapability};
-11 │ │     use aptos_framework::system_addresses;
-   │ ╰─────────────────────────────────────────^ Imports in module "aptos_coin" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/aptos_coin.move:128:32
-    │
-128 │         let delegations = &mut borrow_global_mut<Delegations>(@core_resources).inner;
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/aptos_coin.move:114:32
-    │
-114 │         let delegations = &mut borrow_global_mut<Delegations>(@core_resources).inner;
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "aptos_account" are not sorted alphabetically.
-  ┌─ ./sources/aptos_account.move:2:26
-  │  
-2 │       use aptos_framework::account::{Self, new_event_handle};
-  │ ╭──────────────────────────^
-3 │ │     use aptos_framework::aptos_coin::AptosCoin;
-4 │ │     use aptos_framework::coin::{Self, Coin};
-5 │ │     use aptos_framework::create_signer::create_signer;
-  · │
-8 │ │     use std::signer;
-9 │ │     use std::vector;
-  │ ╰───────────────────^ Imports in module "aptos_account" are not sorted alphabetically.
-
-warning: Imports in module "chain_status" are not sorted alphabetically.
-  ┌─ ./sources/chain_status.move:6:26
-  │  
-6 │       use aptos_framework::system_addresses;
-  │ ╭──────────────────────────^
-7 │ │     use std::error;
-  │ ╰──────────────────^ Imports in module "chain_status" are not sorted alphabetically.
-
-warning: Imports in module "timestamp" are not sorted alphabetically.
-  ┌─ ./sources/timestamp.move:6:26
-  │  
-6 │       use aptos_framework::system_addresses;
-  │ ╭──────────────────────────^
-7 │ │     use std::error;
-  │ ╰──────────────────^ Imports in module "timestamp" are not sorted alphabetically.
-
-warning: Getter method `can_be_resolved_early` does not return required field.
-    ┌─ ./sources/voting.move:598:100
-    │  
-598 │       public fun can_be_resolved_early<ProposalType: store>(proposal: &Proposal<ProposalType>): bool {
-    │ ╭────────────────────────────────────────────────────────────────────────────────────────────────────^
-599 │ │         if (option::is_some(&proposal.early_resolution_vote_threshold)) {
-600 │ │             let early_resolution_threshold = *option::borrow(&proposal.early_resolution_vote_threshold);
-601 │ │             if (proposal.yes_votes >= early_resolution_threshold || proposal.no_votes >= early_resolution_threshold) {
-    · │
-605 │ │         false
-606 │ │     }
-    │ ╰─────^ Getter method `can_be_resolved_early` does not return required field.
-
-warning: Imports in module "voting" are not sorted alphabetically.
-   ┌─ ./sources/voting.move:23:14
-   │  
-23 │       use std::bcs::to_bytes;
-   │ ╭──────────────^
-24 │ │     use std::error;
-25 │ │     use std::option::{Self, Option};
-26 │ │     use std::signer;
-   · │
-38 │ │     use aptos_framework::transaction_context;
-39 │ │     use aptos_std::from_bcs;
-   │ ╰───────────────────────────^ Imports in module "voting" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/voting.move:293:28
-    │
-293 │         let voting_forum = borrow_global_mut<VotingForum<ProposalType>>(voting_forum_address);
-    │                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/voting.move:443:28
-    │
-443 │         let voting_forum = borrow_global_mut<VotingForum<ProposalType>>(voting_forum_address);
-    │                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/voting.move:499:28
-    │
-499 │         let voting_forum = borrow_global_mut<VotingForum<ProposalType>>(voting_forum_address);
-    │                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/voting.move:369:28
-    │
-369 │         let voting_forum = borrow_global_mut<VotingForum<ProposalType>>(voting_forum_address);
-    │                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "staking_config" are not sorted alphabetically.
-   ┌─ ./sources/configs/staking_config.move:3:14
-   │  
- 3 │       use std::error;
-   │ ╭──────────────^
- 4 │ │     use std::features;
- 5 │ │ 
- 6 │ │     use aptos_framework::system_addresses;
-   · │
- 9 │ │     use aptos_std::fixed_point64::{Self, FixedPoint64, less_or_equal};
-10 │ │     use aptos_std::math_fixed64;
-   │ ╰───────────────────────────────^ Imports in module "staking_config" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/configs/staking_config.move:224:38
-    │
-224 │         let staking_rewards_config = borrow_global_mut<StakingRewardsConfig>(@aptos_framework);
-    │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/configs/staking_config.move:279:30
-    │
-279 │         let staking_config = borrow_global_mut<StakingConfig>(@aptos_framework);
-    │                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/configs/staking_config.move:351:30
-    │
-351 │         let staking_config = borrow_global_mut<StakingConfig>(@aptos_framework);
-    │                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "reconfiguration_state" are not sorted alphabetically.
-   ┌─ ./sources/reconfiguration_state.move:5:14
-   │  
- 5 │       use std::error;
-   │ ╭──────────────^
- 6 │ │     use std::string;
- 7 │ │     use aptos_std::copyable_any;
- 8 │ │     use aptos_std::copyable_any::Any;
- 9 │ │     use aptos_framework::system_addresses;
-10 │ │     use aptos_framework::timestamp;
-   │ ╰──────────────────────────────────^ Imports in module "reconfiguration_state" are not sorted alphabetically.
-
-warning: Imports in module "stake" are not sorted alphabetically.
-     ┌─ ./sources/stake.move:21:14
-     │  
-  21 │       use std::error;
-     │ ╭──────────────^
-  22 │ │     use std::features;
-  23 │ │     use std::option::{Self, Option};
-  24 │ │     use std::signer;
-     · │
-1779 │ │     use aptos_framework::validator_consensus_info;
-1780 │ │     use aptos_framework::validator_consensus_info::ValidatorConsensusInfo;
-     │ ╰─────────────────────────────────────────────────────────────────────────^ Imports in module "stake" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/stake.move:1236:29
-     │
-1236 │         let validator_set = borrow_global_mut<ValidatorSet>(@aptos_framework);
-     │                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/stake.move:1238:30
-     │
-1238 │         let validator_perf = borrow_global_mut<ValidatorPerformance>(@aptos_framework);
-     │                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
      ┌─ ./sources/stake.move:1276:36
      │
 1276 │             let validator_config = borrow_global_mut<ValidatorConfig>(pool_address);
-     │                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+     │                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/stake.move:1317:36
-     │
-1317 │             let validator_config = borrow_global_mut<ValidatorConfig>(validator_info.addr);
-     │                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/stake.move:360:31
-    │
-360 │         let fees_table = &mut borrow_global_mut<ValidatorFees>(@aptos_framework).fees_table;
-    │                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/stake.move:1753:27
-     │
-1753 │             let allowed = borrow_global_mut<AllowedValidators>(aptos_framework_address);
-     │                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/stake.move:979:32
-    │
-979 │         let validator_config = borrow_global_mut<ValidatorConfig>(pool_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/stake.move:516:29
     │
 516 │         let validator_set = borrow_global_mut<ValidatorSet>(@aptos_framework);
-    │                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/stake.move:706:26
-    │
-706 │         let stake_pool = borrow_global_mut<StakePool>(pool_address);
-    │                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/stake.move:1178:30
-     │
-1178 │         let validator_perf = borrow_global_mut<ValidatorPerformance>(@aptos_framework);
-     │                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/stake.move:1584:35
-     │
-1584 │             let fees_table = &mut borrow_global_mut<ValidatorFees>(@aptos_framework).fees_table;
-     │                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/stake.move:1719:29
-     │
-1719 │         let validator_set = borrow_global_mut<ValidatorSet>(@aptos_framework);
-     │                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
      ┌─ ./sources/stake.move:1727:54
      │
 1727 │                 validator_set.total_joining_power <= validator_set.total_voting_power * voting_power_increase_limit / 100,
-     │                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+     │                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
-warning: Imports in module "transaction_fee" are not sorted alphabetically.
-  ┌─ ./sources/transaction_fee.move:3:26
-  │  
-3 │       use aptos_framework::coin::{Self, AggregatableCoin, BurnCapability, Coin, MintCapability};
-  │ ╭──────────────────────────^
-4 │ │     use aptos_framework::aptos_coin::AptosCoin;
-5 │ │     use aptos_framework::stake;
-6 │ │     use aptos_framework::system_addresses;
-7 │ │     use std::error;
-8 │ │     use std::option::{Self, Option};
-9 │ │     use aptos_framework::event;
-  │ ╰──────────────────────────────^ Imports in module "transaction_fee" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/transaction_fee.move:217:30
-    │
-217 │         let collected_fees = borrow_global_mut<CollectedFeesPerBlock>(@aptos_framework);
-    │                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/transaction_fee.move:118:40
-    │
-118 │             let burn_percentage = &mut borrow_global_mut<CollectedFeesPerBlock>(@aptos_framework).burn_percentage;
-    │                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
     ┌─ ./sources/transaction_fee.move:141:30
     │
 141 │         let amount_to_burn = (burn_percentage as u64) * collected_amount / 100;
-    │                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
-
-warning: Imports in module "state_storage" are not sorted alphabetically.
-  ┌─ ./sources/state_storage.move:3:26
-  │  
-3 │       use aptos_framework::system_addresses;
-  │ ╭──────────────────────────^
-4 │ │     use std::error;
-  │ ╰──────────────────^ Imports in module "state_storage" are not sorted alphabetically.
+    │                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
 warning: Block nesting level exceeds allowed limit of 5. Consider refactoring your code.
     ┌─ ./sources/storage_gas.move:478:17
@@ -662,173 +136,59 @@ warning: Block nesting level exceeds allowed limit of 5. Consider refactoring yo
 490 │ │                 };
     │ ╰─────────────────^ Block nesting level exceeds allowed limit of 5. Consider refactoring your code.
 
-warning: Imports in module "storage_gas" are not sorted alphabetically.
-    ┌─ ./sources/storage_gas.move:151:26
-    │  
-151 │       use aptos_framework::system_addresses;
-    │ ╭──────────────────────────^
-152 │ │     use std::error;
-153 │ │     use aptos_framework::state_storage;
-154 │ │     use std::vector;
-    │ ╰───────────────────^ Imports in module "storage_gas" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/storage_gas.move:365:10
     │
 365 │         *borrow_global_mut<StorageGasConfig>(@aptos_framework) = config;
-    │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
     ┌─ ./sources/storage_gas.move:457:33
     │
 457 │         let current_usage_bps = capped_current_usage * BASIS_POINT_DENOMINATION / max_usage;
-    │                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+    │                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
     ┌─ ./sources/storage_gas.move:500:14
     │
 500 │         y0 + (x - x0) * (y1 - y0) / (x1 - x0)
-    │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+    │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
-warning: Imports in module "reconfiguration" are not sorted alphabetically.
-   ┌─ ./sources/reconfiguration.move:4:14
-   │  
- 4 │       use std::error;
-   │ ╭──────────────^
- 5 │ │     use std::features;
- 6 │ │     use std::signer;
- 7 │ │ 
-   · │
-15 │ │     use aptos_framework::storage_gas;
-16 │ │     use aptos_framework::transaction_fee;
-   │ ╰────────────────────────────────────────^ Imports in module "reconfiguration" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/reconfiguration.move:188:26
-    │
-188 │         let config_ref = borrow_global_mut<Configuration>(@aptos_framework);
-    │                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/reconfiguration.move:113:26
-    │
-113 │         let config_ref = borrow_global_mut<Configuration>(@aptos_framework);
-    │                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "config_buffer" are not sorted alphabetically.
-   ┌─ ./sources/configs/config_buffer.move:13:14
-   │  
-13 │       use std::string::String;
-   │ ╭──────────────^
-14 │ │     use aptos_std::any;
-15 │ │     use aptos_std::any::Any;
-16 │ │     use aptos_std::simple_map;
-17 │ │     use aptos_std::simple_map::SimpleMap;
-18 │ │     use aptos_std::type_info;
-19 │ │     use aptos_framework::system_addresses;
-   │ ╰─────────────────────────────────────────^ Imports in module "config_buffer" are not sorted alphabetically.
-
-warning: Imports in module "version" are not sorted alphabetically.
-  ┌─ ./sources/configs/version.move:3:14
-  │  
-3 │       use std::error;
-  │ ╭──────────────^
-4 │ │     use std::signer;
-5 │ │     use aptos_framework::chain_status;
-6 │ │     use aptos_framework::config_buffer;
-7 │ │ 
-8 │ │     use aptos_framework::reconfiguration;
-9 │ │     use aptos_framework::system_addresses;
-  │ ╰─────────────────────────────────────────^ Imports in module "version" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
    ┌─ ./sources/configs/version.move:72:18
    │
 72 │                 *borrow_global_mut<Version>(@aptos_framework) = new_value;
-   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-   ┌─ ./sources/configs/version.move:48:22
-   │
-48 │         let config = borrow_global_mut<Version>(@aptos_framework);
-   │                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
    ┌─ ./sources/configs/randomness_config_seqnum.move:43:18
    │
 43 │                 *borrow_global_mut<RandomnessConfigSeqNum>(@aptos_framework) = new_config;
-   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Imports in module "randomness_config" are not sorted alphabetically.
-  ┌─ ./sources/configs/randomness_config.move:3:14
-  │  
-3 │       use std::string;
-  │ ╭──────────────^
-4 │ │     use aptos_std::copyable_any;
-5 │ │     use aptos_std::copyable_any::Any;
-6 │ │     use aptos_std::fixed_point64::FixedPoint64;
-7 │ │     use aptos_framework::config_buffer;
-8 │ │     use aptos_framework::system_addresses;
-  │ ╰─────────────────────────────────────────^ Imports in module "randomness_config" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
    ┌─ ./sources/configs/randomness_config.move:64:18
    │
 64 │                 *borrow_global_mut<RandomnessConfig>(@aptos_framework) = new_config;
-   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Imports in module "randomness_api_v0_config" are not sorted alphabetically.
-  ┌─ ./sources/configs/randomness_api_v0_config.move:2:14
-  │  
-2 │       use std::option::Option;
-  │ ╭──────────────^
-3 │ │     use aptos_framework::chain_status;
-4 │ │     use aptos_framework::config_buffer;
-5 │ │     use aptos_framework::system_addresses;
-  │ ╰─────────────────────────────────────────^ Imports in module "randomness_api_v0_config" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
    ┌─ ./sources/configs/randomness_api_v0_config.move:31:18
    │
 31 │                 *borrow_global_mut<RequiredGasDeposit>(@aptos_framework) = new_config;
-   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Imports in module "keyless_account" are not sorted alphabetically.
-   ┌─ ./sources/keyless_account.move:4:14
-   │  
- 4 │       use std::bn254_algebra;
-   │ ╭──────────────^
- 5 │ │     use std::config_buffer;
- 6 │ │     use std::option;
- 7 │ │     use std::option::Option;
-   · │
-13 │ │     use aptos_framework::chain_status;
-14 │ │     use aptos_framework::system_addresses;
-   │ ╰─────────────────────────────────────────^ Imports in module "keyless_account" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/keyless_account.move:297:18
     │
 297 │                 *borrow_global_mut<Groth16VerificationKey>(@aptos_framework) = vk;
-    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/keyless_account.move:306:18
     │
 306 │                 *borrow_global_mut<Configuration>(@aptos_framework) = config;
-    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/keyless_account.move:167:22
-    │
-167 │         let config = borrow_global_mut<Configuration>(signer::address_of(fx));
-    │                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/keyless_account.move:158:22
-    │
-158 │         let config = borrow_global_mut<Configuration>(signer::address_of(fx));
-    │                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
 warning: Unnecessary 'while(true)' detected. Consider using 'loop' instead.
     ┌─ ./sources/keyless_account.move:122:9
@@ -838,237 +198,53 @@ warning: Unnecessary 'while(true)' detected. Consider using 'loop' instead.
 124 │ │         };
     │ ╰─────────^ Unnecessary 'while(true)' detected. Consider using 'loop' instead.
 
-warning: Imports in module "jwks" are not sorted alphabetically.
-   ┌─ ./sources/jwks.move:8:14
-   │  
- 8 │       use std::error;
-   │ ╭──────────────^
- 9 │ │     use std::option;
-10 │ │     use std::option::Option;
-11 │ │     use std::string;
-   · │
-20 │ │     use aptos_framework::reconfiguration;
-21 │ │     use aptos_framework::system_addresses;
-   │ ╰─────────────────────────────────────────^ Imports in module "jwks" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/jwks.move:255:18
     │
 255 │                 *borrow_global_mut<SupportedOIDCProviders>(@aptos_framework) = new_config;
-    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/jwks.move:364:29
-    │
-364 │         let observed_jwks = borrow_global_mut<ObservedJWKs>(@aptos_framework);
-    │                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/jwks.move:242:14
     │
 242 │             *borrow_global_mut<SupportedOIDCProviders>(@aptos_framework)
-    │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/jwks.move:265:9
-    │
-265 │         borrow_global_mut<Patches>(@aptos_framework).patches = patches;
-    │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/jwks.move:348:29
-    │
-348 │         let observed_jwks = borrow_global_mut<ObservedJWKs>(@aptos_framework);
-    │                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/jwks.move:207:14
     │
 207 │             *borrow_global_mut<SupportedOIDCProviders>(@aptos_framework)
-    │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Imports in module "jwk_consensus_config" are not sorted alphabetically.
-   ┌─ ./sources/configs/jwk_consensus_config.move:3:14
-   │  
- 3 │       use std::error;
-   │ ╭──────────────^
- 4 │ │     use std::option;
- 5 │ │     use std::string::String;
- 6 │ │     use std::vector;
-   · │
-10 │ │     use aptos_framework::config_buffer;
-11 │ │     use aptos_framework::system_addresses;
-   │ ╰─────────────────────────────────────────^ Imports in module "jwk_consensus_config" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
    ┌─ ./sources/configs/jwk_consensus_config.move:73:18
    │
 73 │                 *borrow_global_mut<JWKConsensusConfig>(@aptos_framework) = new_config;
-   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Imports in module "gas_schedule" are not sorted alphabetically.
-   ┌─ ./sources/configs/gas_schedule.move:4:14
-   │  
- 4 │       use std::error;
-   │ ╭──────────────^
- 5 │ │     use std::string::String;
- 6 │ │     use std::vector;
- 7 │ │     use aptos_framework::chain_status;
-   · │
-13 │ │     use aptos_framework::storage_gas::StorageGasConfig;
-14 │ │     use aptos_framework::storage_gas;
-   │ ╰────────────────────────────────────^ Imports in module "gas_schedule" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/configs/gas_schedule.move:108:18
     │
 108 │                 *borrow_global_mut<GasScheduleV2>(@aptos_framework) = new_gas_schedule;
-    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
    ┌─ ./sources/configs/gas_schedule.move:60:32
    │
 60 │             let gas_schedule = borrow_global_mut<GasScheduleV2>(@aptos_framework);
-   │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+   │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Imports in module "execution_config" are not sorted alphabetically.
-   ┌─ ./sources/configs/execution_config.move:4:26
-   │  
- 4 │       use aptos_framework::config_buffer;
-   │ ╭──────────────────────────^
- 5 │ │     use std::error;
- 6 │ │     use std::vector;
- 7 │ │     use aptos_framework::chain_status;
- 8 │ │ 
- 9 │ │     use aptos_framework::reconfiguration;
-10 │ │     use aptos_framework::system_addresses;
-   │ ╰─────────────────────────────────────────^ Imports in module "execution_config" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
    ┌─ ./sources/configs/execution_config.move:60:18
    │
 60 │                 *borrow_global_mut<ExecutionConfig>(@aptos_framework) = config;
-   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-   ┌─ ./sources/configs/execution_config.move:33:35
-   │
-33 │             let config_ref = &mut borrow_global_mut<ExecutionConfig>(@aptos_framework).config;
-   │                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "dkg" are not sorted alphabetically.
-   ┌─ ./sources/dkg.move:3:14
-   │  
- 3 │       use std::error;
-   │ ╭──────────────^
- 4 │ │     use std::option;
- 5 │ │     use std::option::Option;
- 6 │ │     use aptos_framework::event::emit;
-   · │
- 9 │ │     use aptos_framework::timestamp;
-10 │ │     use aptos_framework::validator_consensus_info::ValidatorConsensusInfo;
-   │ ╰─────────────────────────────────────────────────────────────────────────^ Imports in module "dkg" are not sorted alphabetically.
-
-warning: Imports in module "consensus_config" are not sorted alphabetically.
-   ┌─ ./sources/configs/consensus_config.move:4:14
-   │  
- 4 │       use std::error;
-   │ ╭──────────────^
- 5 │ │     use std::vector;
- 6 │ │     use aptos_framework::chain_status;
- 7 │ │     use aptos_framework::config_buffer;
- 8 │ │ 
- 9 │ │     use aptos_framework::reconfiguration;
-10 │ │     use aptos_framework::system_addresses;
-   │ ╰─────────────────────────────────────────^ Imports in module "consensus_config" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
    ┌─ ./sources/configs/consensus_config.move:64:18
    │
 64 │                 *borrow_global_mut<ConsensusConfig>(@aptos_framework) = new_config;
-   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-   ┌─ ./sources/configs/consensus_config.move:39:31
-   │
-39 │         let config_ref = &mut borrow_global_mut<ConsensusConfig>(@aptos_framework).config;
-   │                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "reconfiguration_with_dkg" are not sorted alphabetically.
-   ┌─ ./sources/reconfiguration_with_dkg.move:3:14
-   │  
- 3 │       use std::features;
-   │ ╭──────────────^
- 4 │ │     use std::option;
- 5 │ │     use aptos_framework::consensus_config;
- 6 │ │     use aptos_framework::dkg;
-   · │
-17 │ │     use aptos_framework::stake;
-18 │ │     use aptos_framework::system_addresses;
-   │ ╰─────────────────────────────────────────^ Imports in module "reconfiguration_with_dkg" are not sorted alphabetically.
-
-warning: Imports in module "aptos_governance" are not sorted alphabetically.
-   ┌─ ./sources/aptos_governance.move:13:14
-   │  
-13 │       use std::error;
-   │ ╭──────────────^
-14 │ │     use std::option;
-15 │ │     use std::signer;
-16 │ │     use std::string::{Self, String, utf8};
-   · │
-36 │ │     use aptos_framework::timestamp;
-37 │ │     use aptos_framework::voting;
-   │ ╰───────────────────────────────^ Imports in module "aptos_governance" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/aptos_governance.move:623:36
-    │
-623 │         let approved_hashes = &mut borrow_global_mut<ApprovedExecutionHashes>(@aptos_framework).hashes;
-    │                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/aptos_governance.move:518:37
-    │
-518 │             let voting_records_v2 = borrow_global_mut<VotingRecordsV2>(@aptos_framework);
-    │                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "randomness" are not sorted alphabetically.
-   ┌─ ./sources/randomness.move:9:14
-   │  
- 9 │       use std::hash;
-   │ ╭──────────────^
-10 │ │     use std::option;
-11 │ │     use std::option::Option;
-12 │ │     use std::vector;
-13 │ │     use aptos_framework::event;
-14 │ │     use aptos_framework::system_addresses;
-15 │ │     use aptos_framework::transaction_context;
-   │ ╰────────────────────────────────────────────^ Imports in module "randomness" are not sorted alphabetically.
-
-warning: Imports in module "block" are not sorted alphabetically.
-   ┌─ ./sources/block.move:3:14
-   │  
- 3 │       use std::error;
-   │ ╭──────────────^
- 4 │ │     use std::features;
- 5 │ │     use std::vector;
- 6 │ │     use std::option;
-   · │
-18 │ │     use aptos_framework::timestamp;
-19 │ │     use aptos_framework::transaction_fee;
-   │ ╰────────────────────────────────────────^ Imports in module "block" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/block.move:179:34
-    │
-179 │         let block_metadata_ref = borrow_global_mut<BlockResource>(@aptos_framework);
-    │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/block.move:341:34
-    │
-341 │         let block_metadata_ref = borrow_global_mut<BlockResource>(@aptos_framework);
-    │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+   │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
 warning: Block nesting level exceeds allowed limit of 5. Consider refactoring your code.
     ┌─ ./sources/code.move:283:21
@@ -1090,419 +266,140 @@ warning: Block nesting level exceeds allowed limit of 5. Consider refactoring yo
 566 │ │             };
     │ ╰─────────────^ Block nesting level exceeds allowed limit of 5. Consider refactoring your code.
 
-warning: Imports in module "code" are not sorted alphabetically.
-   ┌─ ./sources/code.move:3:14
-   │  
- 3 │       use std::string::String;
-   │ ╭──────────────^
- 4 │ │     use std::error;
- 5 │ │     use std::signer;
- 6 │ │     use std::vector;
-   · │
-14 │ │     use aptos_framework::event;
-15 │ │     use aptos_framework::object::{Self, Object};
-   │ ╰──────────────────────────────────────────────^ Imports in module "code" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/code.move:216:24
-    │
-216 │         let registry = borrow_global_mut<PackageRegistry>(code_object_addr);
-    │                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/code.move:185:29
-    │
-185 │         let packages = &mut borrow_global_mut<PackageRegistry>(addr).packages;
-    │                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Call `!balance` directly instead of comparing it to true.
-    ┌─ ./sources/delegation_pool.move:566:17
-    │
-566 │                 (true, pool_u64::balance(inactive_shares, delegator_address))
-    │                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Call `!balance` directly instead of comparing it to true.
-
-warning: Imports in module "delegation_pool" are not sorted alphabetically.
-    ┌─ ./sources/delegation_pool.move:111:14
-    │  
-111 │       use std::error;
-    │ ╭──────────────^
-112 │ │     use std::features;
-113 │ │     use std::signer;
-114 │ │     use std::vector;
-    · │
-129 │ │     use aptos_framework::staking_config;
-130 │ │     use aptos_framework::timestamp;
-    │ ╰──────────────────────────────────^ Imports in module "delegation_pool" are not sorted alphabetically.
-
-warning: Mutable parameter `governance_records` is never modified in function `update_and_borrow_mut_delegated_votes`.
-     ┌─ ./sources/delegation_pool.move:1155:5
-     │  
-1155 │ ╭     fun update_and_borrow_mut_delegated_votes(
-1156 │ │         pool: &DelegationPool,
-1157 │ │         governance_records: &mut GovernanceRecords,
-1158 │ │         voter: address
-     · │
-1184 │ │         delegated_votes
-1185 │ │     }
-     │ ╰─────^ Mutable parameter `governance_records` is never modified in function `update_and_borrow_mut_delegated_votes`.
-
-warning: Mutable parameter `governance_records` is never modified in function `update_and_borrow_mut_delegator_vote_delegation`.
-     ┌─ ./sources/delegation_pool.move:1126:5
-     │  
-1126 │ ╭     fun update_and_borrow_mut_delegator_vote_delegation(
-1127 │ │         pool: &DelegationPool,
-1128 │ │         governance_records: &mut GovernanceRecords,
-1129 │ │         delegator: address
-     · │
-1151 │ │         vote_delegation
-1152 │ │     }
-     │ ╰─────^ Mutable parameter `governance_records` is never modified in function `update_and_borrow_mut_delegator_vote_delegation`.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/delegation_pool.move:1226:14
-     │
-1226 │         &mut borrow_global_mut<DelegationPoolAllowlisting>(pool_address).allowlist
-     │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/delegation_pool.move:685:34
     │
 685 │         let governance_records = borrow_global_mut<GovernanceRecords>(pool_address);
-    │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/delegation_pool.move:1226:14
-     │
-1226 │         &mut borrow_global_mut<DelegationPoolAllowlisting>(pool_address).allowlist
-     │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/delegation_pool.move:1226:14
-     │
-1226 │         &mut borrow_global_mut<DelegationPoolAllowlisting>(pool_address).allowlist
-     │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/delegation_pool.move:1257:13
-     │
-1257 │             borrow_global_mut<BeneficiaryForOperator>(operator_addr).beneficiary_for_operator = new_beneficiary;
-     │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
      ┌─ ./sources/delegation_pool.move:2115:34
      │
 2115 │         let governance_records = borrow_global_mut<GovernanceRecords>(pool_address);
-     │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+     │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
      ┌─ ./sources/delegation_pool.move:2142:34
      │
 2142 │         let governance_records = borrow_global_mut<GovernanceRecords>(pool_address);
-     │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+     │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
      ┌─ ./sources/delegation_pool.move:2079:34
      │
 2079 │         let governance_records = borrow_global_mut<GovernanceRecords>(pool_address);
-     │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+     │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
      ┌─ ./sources/delegation_pool.move:2103:34
      │
 2103 │         let governance_records = borrow_global_mut<GovernanceRecords>(pool_address);
-     │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+     │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
    ┌─ ./../aptos-stdlib/sources/math64.move:44:10
    │
 44 │         (((a as u128) * (b as u128) / (c as u128)) as u64)
-   │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+   │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
    ┌─ ./../aptos-stdlib/sources/math64.move:44:10
    │
 44 │         (((a as u128) * (b as u128) / (c as u128)) as u64)
-   │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+   │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
    ┌─ ./../aptos-stdlib/sources/math64.move:44:10
    │
 44 │         (((a as u128) * (b as u128) / (c as u128)) as u64)
-   │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+   │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
     ┌─ ./sources/delegation_pool.move:659:18
     │
 659 │                 ((((amount as u128) * (rewards_rate as u128)) / ((rewards_rate as u128) + (rewards_rate_denominator as u128))) as u64)
-    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+    │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
-warning: Imports in module "staking_contract" are not sorted alphabetically.
-   ┌─ ./sources/staking_contract.move:28:14
-   │  
-28 │       use std::bcs;
-   │ ╭──────────────^
-29 │ │     use std::error;
-30 │ │     use std::features;
-31 │ │     use std::signer;
-   · │
-42 │ │     use aptos_framework::stake::{Self, OwnerCapability};
-43 │ │     use aptos_framework::staking_config;
-   │ ╰───────────────────────────────────────^ Imports in module "staking_contract" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/staking_contract.move:743:13
-    │
-743 │             borrow_global_mut<BeneficiaryForOperator>(operator_addr).beneficiary_for_operator = new_beneficiary;
-    │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/staking_contract.move:818:38
-    │
-818 │         let staking_contracts = &mut borrow_global_mut<Store>(staker).staking_contracts;
-    │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/staking_contract.move:759:21
-    │
-759 │         let store = borrow_global_mut<Store>(staker);
-    │                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/staking_contract.move:552:21
-    │
-552 │         let store = borrow_global_mut<Store>(staker);
-    │                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/staking_contract.move:504:21
-    │
-504 │         let store = borrow_global_mut<Store>(staker_address);
-    │                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
     ┌─ ./sources/staking_contract.move:858:33
     │
 858 │         let commission_amount = accumulated_rewards * staking_contract.commission_percentage / 100;
-    │                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+    │                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
-warning: Use math64::mul_div or math128::mul_div instead of mul/div.
+warning: Use math64::mul div or math128::mul_div instead of * and / operators.
     ┌─ ./sources/staking_contract.move:905:41
     │
 905 │                 let unpaid_commission = (current_worth - previous_worth) * commission_percentage / 100;
-    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul_div or math128::mul_div instead of mul/div.
+    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use math64::mul div or math128::mul_div instead of * and / operators.
 
-warning: Imports in module "vesting" are not sorted alphabetically.
-     ┌─ ./sources/vesting.move:37:14
-     │  
-  37 │       use std::bcs;
-     │ ╭──────────────^
-  38 │ │     use std::error;
-  39 │ │     use std::fixed_point32::{Self, FixedPoint32};
-  40 │ │     use std::signer;
-     · │
-1184 │ │     use aptos_framework::account::create_account_for_test;
-1185 │ │     use aptos_std::math64::min;
-     │ ╰──────────────────────────────^ Imports in module "vesting" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/vesting.move:921:32
     │
 921 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/vesting.move:737:32
-    │
-737 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/vesting.move:969:32
     │
 969 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/vesting.move:935:32
     │
 935 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/vesting.move:838:32
     │
 838 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
      ┌─ ./sources/vesting.move:1111:32
      │
 1111 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-     │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+     │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/vesting.move:1005:32
-     │
-1005 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-     │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
      ┌─ ./sources/vesting.move:1067:32
      │
 1067 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-     │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+     │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/vesting.move:1076:26
-     │
-1076 │         let roles = &mut borrow_global_mut<VestingAccountManagement>(contract_address).roles;
-     │                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/vesting.move:802:32
-    │
-802 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/vesting.move:873:32
     │
 873 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/vesting.move:664:32
-    │
-664 │         let vesting_contract = borrow_global_mut<VestingContract>(contract_address);
-    │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "transaction_validation" are not sorted alphabetically.
-   ┌─ ./sources/transaction_validation.move:2:14
-   │  
- 2 │       use std::bcs;
-   │ ╭──────────────^
- 3 │ │     use std::error;
- 4 │ │     use std::features;
- 5 │ │     use std::option;
-   · │
-15 │ │     use aptos_framework::timestamp;
-16 │ │     use aptos_framework::transaction_fee;
-   │ ╰────────────────────────────────────────^ Imports in module "transaction_validation" are not sorted alphabetically.
-
-warning: Imports in module "genesis" are not sorted alphabetically.
-    ┌─ ./sources/genesis.move:2:14
-    │  
-  2 │       use std::error;
-    │ ╭──────────────^
-  3 │ │     use std::fixed_point32;
-  4 │ │     use std::vector;
-  5 │ │ 
-    · │
-382 │ │     #[verify_only]
-383 │ │     use std::features;
-    │ ╰─────────────────────^ Imports in module "genesis" are not sorted alphabetically.
-
-warning: Imports in module "managed_coin" are not sorted alphabetically.
-  ┌─ ./sources/managed_coin.move:5:14
-  │  
-5 │       use std::string;
-  │ ╭──────────────^
-6 │ │     use std::error;
-7 │ │     use std::signer;
-8 │ │ 
-9 │ │     use aptos_framework::coin::{Self, BurnCapability, FreezeCapability, MintCapability};
-  │ ╰──────────────────────────────────────────────────────────────────────────────────────^ Imports in module "managed_coin" are not sorted alphabetically.
-
-warning: Imports in module "multisig_account" are not sorted alphabetically.
-     ┌─ ./sources/multisig_account.move:39:26
-     │  
-  39 │       use aptos_framework::account::{Self, SignerCapability, new_event_handle, create_resource_address};
-     │ ╭──────────────────────────^
-  40 │ │     use aptos_framework::aptos_coin::AptosCoin;
-  41 │ │     use aptos_framework::chain_id;
-  42 │ │     use aptos_framework::create_signer::create_signer;
-     · │
-1445 │ │     use std::string::utf8;
-1446 │ │     use std::features;
-     │ ╰─────────────────────^ Imports in module "multisig_account" are not sorted alphabetically.
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/multisig_account.move:487:41
     │
 487 │         let multisig_account_resource = borrow_global_mut<MultisigAccount>(multisig_account);
-    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
      ┌─ ./sources/multisig_account.move:1148:41
      │
 1148 │         let multisig_account_resource = borrow_global_mut<MultisigAccount>(multisig_account);
-     │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+     │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/multisig_account.move:458:41
     │
 458 │         let multisig_account_resource = borrow_global_mut<MultisigAccount>(multisig_account);
-    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
     ┌─ ./sources/multisig_account.move:465:41
     │
 465 │         let multisig_account_resource = borrow_global_mut<MultisigAccount>(multisig_account);
-    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead
 
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
+warning: Unnecessary mutable borrow, use immutable borrow instead
      ┌─ ./sources/multisig_account.move:1116:41
      │
 1116 │         let multisig_account_resource = borrow_global_mut<MultisigAccount>(multisig_account);
-     │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-    ┌─ ./sources/multisig_account.move:852:41
-    │
-852 │         let multisig_account_resource = borrow_global_mut<MultisigAccount>(multisig_address);
-    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-     ┌─ ./sources/multisig_account.move:1344:13
-     │
-1344 │             borrow_global_mut<MultisigAccount>(multisig_address);
-     │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unused borrowed mutable variable. Consider normal borrow (borrow_global, vector::borrow, etc.) instead
-
-warning: Imports in module "object_code_deployment" are not sorted alphabetically.
-   ┌─ ./sources/object_code_deployment.move:32:14
-   │  
-32 │       use std::bcs;
-   │ ╭──────────────^
-33 │ │     use std::error;
-34 │ │     use std::features;
-35 │ │     use std::signer;
-   · │
-41 │ │     use aptos_framework::object;
-42 │ │     use aptos_framework::object::{ExtendRef, Object};
-   │ ╰───────────────────────────────────────────────────^ Imports in module "object_code_deployment" are not sorted alphabetically.
-
-warning: Imports in module "resource_account" are not sorted alphabetically.
-   ┌─ ./sources/resource_account.move:64:14
-   │  
-64 │       use std::error;
-   │ ╭──────────────^
-65 │ │     use std::signer;
-66 │ │     use std::vector;
-67 │ │     use aptos_framework::account;
-68 │ │     use aptos_framework::aptos_coin::AptosCoin;
-69 │ │     use aptos_framework::coin;
-70 │ │     use aptos_std::simple_map::{Self, SimpleMap};
-   │ ╰───────────────────────────────────────────────^ Imports in module "resource_account" are not sorted alphabetically.
-
-warning: Imports in module "staking_proxy" are not sorted alphabetically.
-  ┌─ ./sources/staking_proxy.move:2:14
-  │  
-2 │       use std::signer;
-  │ ╭──────────────^
-3 │ │     use std::vector;
-4 │ │ 
-5 │ │     use aptos_framework::stake;
-6 │ │     use aptos_framework::staking_contract;
-7 │ │     use aptos_framework::vesting;
-  │ ╰────────────────────────────────^ Imports in module "staking_proxy" are not sorted alphabetically.
-
+     │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary mutable borrow, use immutable borrow instead

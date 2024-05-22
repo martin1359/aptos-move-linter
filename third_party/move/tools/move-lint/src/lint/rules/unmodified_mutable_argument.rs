@@ -94,6 +94,9 @@ impl UnmodifiedMutableArgumentLint {
             ExpData::Call(_, Operation::MoveFunction(_, _), exp_vec) => {
                 self.check_exp_vector(exp_vec, param_name, func_env, is_modified)
             },
+            ExpData::Call(_, Operation::Select(_, _, _), exp_vec) => {
+                self.check_exp_vector(exp_vec, param_name, func_env, is_modified);
+            },
             _ => (),
         }
     }
@@ -134,6 +137,9 @@ impl ExpressionAnalysisVisitor for UnmodifiedMutableArgumentLint {
         diags: &mut Vec<Diagnostic<FileId>>,
     ) {
         for func_env in _module.get_functions() {
+            if func_env.is_native() {
+                return;
+            };
             self.check_unmodified_mut_arguments(&func_env, _env, diags);
         }
     }

@@ -46,6 +46,11 @@ impl CombinableBoolVisitor {
                 if args1.len() == 2 && args2.len() == 2 {
                     let right_operand_1 = &args1[1];
                     let right_operand_2 = &args2[1];
+                    if !self.is_number(right_operand_1.as_ref())
+                        || !self.is_number(right_operand_2.as_ref())
+                    {
+                        return;
+                    }
                     if let (
                         ExpData::Value(_, Value::Number(num1)),
                         ExpData::Value(_, Value::Number(num2)),
@@ -111,6 +116,10 @@ impl CombinableBoolVisitor {
                 }
             }
         }
+    }
+
+    fn is_number(&mut self, exp: &ExpData) -> bool {
+        matches!(exp, ExpData::Value(_, Value::Number(_)))
     }
 }
 

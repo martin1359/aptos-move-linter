@@ -30,7 +30,7 @@ pub mod return_at_end_of_block;
 pub mod shift_overflow;
 pub mod sorted_imports;
 pub mod unconditional_exit_loop;
-pub mod unmodified_mutable_argument_lint;
+pub mod unmodified_mutable_argument;
 pub mod unnecessary_mutable_reference;
 pub mod unnecessary_type_conversion;
 pub mod unnecessary_while_true;
