@@ -14,7 +14,7 @@ use codespan::FileId;
 use codespan_reporting::diagnostic::Diagnostic;
 use move_model::{
     ast::{Exp, ExpData, Operation, Value},
-    model::{FunctionEnv, GlobalEnv},
+    model::{FunctionEnv, GlobalEnv, Loc},
 };
 
 pub struct RedundantBooleanExpressions;
@@ -40,6 +40,7 @@ impl RedundantBooleanExpressions {
         exp: &ExpData,
         env: &GlobalEnv,
         diags: &mut Vec<Diagnostic<FileId>>,
+        func_env: &FunctionEnv,
     ) {
         if let ExpData::Call(_, oper, args) = exp {
             if self.is_redundant_boolean_expression(oper, args) {
@@ -64,7 +65,6 @@ impl RedundantBooleanExpressions {
         // Extract the underlying ExpData from each argument
         let arg1_data = args[0].as_ref();
         let arg2_data = args[1].as_ref();
-
         match (arg1_data, arg2_data) {
             // Check for expressions like `x && true` or `true && x`
             (ExpData::Value(_, Value::Bool(true)), _)
@@ -89,11 +89,14 @@ impl ExpressionAnalysisVisitor for RedundantBooleanExpressions {
     fn post_visit_expression(
         &mut self,
         exp: &ExpData,
-        _func_env: &FunctionEnv,
+        func_env: &FunctionEnv,
         env: &GlobalEnv,
         _: &LintConfig,
         diags: &mut Vec<Diagnostic<FileId>>,
     ) {
-        self.check_redundant_boolean_expressions(exp, env, diags);
+        if func_env.is_inline() {
+            return;
+        }
+        self.check_redundant_boolean_expressions(exp, env, diags, func_env);
     }
 }
