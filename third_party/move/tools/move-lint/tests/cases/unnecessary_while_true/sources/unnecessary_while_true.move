@@ -4,7 +4,9 @@ module NamedAddr::Detector {
         while (true) { // Should trigger a warning
             if (counter >= 10) { break };
             counter = counter + 1;
-        }
+        };
+        
+        for (vector_index in 1..10) {};
     }
 
     // public fun loop_with_condition() {

@@ -37,19 +37,35 @@ impl UnnecessaryWhileTrueVisitor {
         env: &GlobalEnv,
         diags: &mut Vec<Diagnostic<FileId>>,
     ) {
-        if let ExpData::Loop(_, body) = exp {
-            if let ExpData::IfElse(_, cond, _, _) = body.as_ref() {
-                if let ExpData::Value(_, Value::Bool(true)) = cond.as_ref() {
-                    let message =
-                        "Unnecessary 'while(true)' detected. Consider using 'loop' instead.";
-                    add_diagnostic_and_emit(
-                        &env.get_node_loc(exp.node_id()),
-                        message,
-                        codespan_reporting::diagnostic::Severity::Warning,
-                        env,
-                        diags,
-                    );
-                }
+        let ExpData::Loop(_, body) = exp else {
+            return;
+        };
+
+        let ExpData::IfElse(_, cond, if_body, else_body) = body.as_ref() else {
+            return;
+        };
+        let ExpData::Value(_, Value::Bool(true)) = cond.as_ref() else {
+            return;
+        };
+        let ExpData::Sequence(_, vec_exp) = if_body.as_ref() else {
+            return;
+        };
+        if vec_exp.len() >= 1 {
+            let Some(for_loop_exp) = vec_exp.get(0) else {
+                return;
+            };
+            let ExpData::IfElse(_, for_loop_var, _, _) = for_loop_exp.as_ref() else {
+                return;
+            };
+            if !matches!(for_loop_var.as_ref(), ExpData::LocalVar(_, _)) {
+                let message = "Unnecessary 'while(true)' detected. Consider using 'loop' instead.";
+                add_diagnostic_and_emit(
+                    &env.get_node_loc(exp.node_id()),
+                    message,
+                    codespan_reporting::diagnostic::Severity::Warning,
+                    env,
+                    diags,
+                );
             }
         }
     }

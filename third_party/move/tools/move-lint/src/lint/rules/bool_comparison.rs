@@ -55,6 +55,11 @@ impl BoolComparisonVisitor {
                 return;
             }
 
+            if matches!(oper, Operation::Or) || matches!(oper, Operation::And) {
+                // Ignore the case where the comparison is not equality or inequality
+                return;
+            }
+
             if let (Some(first_arg), Some(second_arg)) = (args.get(0), args.get(1)) {
                 if let (
                     ExpData::Value(_, Value::Bool(a)),
